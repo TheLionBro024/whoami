@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog // whoami</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f12;
+            --accent-green: #00ff66;
+            --text-main: #f0f3f6;
+            --text-muted: #95a5b2;
+            --border-light: rgba(255, 255, 255, 0.08);
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVIGATION & HAMBURGER MENU --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 24px 5%;
+            display: flex;
+            justify-content: flex-end;
+            z-index: 100;
+        }
+
+        .hamburger {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 101;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 30px;
+            height: 2px;
+            background-color: #ffffff;
+            transition: 0.3s ease;
+        }
+
+        .hamburger:hover span {
+            background-color: var(--accent-green);
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(11, 15, 18, 0.98);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 99;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .menu-overlay a {
+            font-size: 24px;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .menu-overlay a:hover {
+            color: var(--accent-green);
+        }
+
+        /* --- FEED CONTAINER --- */
+        .feed-container {
+            max-width: 600px;
+            margin: 100px auto 60px auto;
+            padding: 0 16px;
+            box-sizing: border-box;
+        }
+
+        .post-card {
+            background-color: #12181c;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            margin-bottom: 32px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .post-card:hover {
+            border-color: var(--accent-green);
+            box-shadow: 0 8px 24px rgba(0, 255, 102, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            gap: 12px;
+        }
+
+        .card-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid var(--accent-green);
+            object-fit: cover;
+            background-color: var(--bg-color);
+        }
+
+        .card-user-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.3;
+        }
+
+        .card-username {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .card-time {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .card-image-link {
+            display: block;
+            width: 100%;
+            overflow: hidden;
+            background-color: #0b0f12;
+            border-top: 1px solid rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .card-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+            max-height: 550px;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .card-image-link:hover .card-image {
+            transform: scale(1.02);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 16px;
+            padding: 14px 16px 10px 16px;
+        }
+
+        .action-icon {
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s ease, transform 0.1s ease;
+        }
+
+        .action-icon:hover {
+            color: var(--accent-green);
+            transform: scale(1.1);
+        }
+
+        .bookmark-container {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-caption {
+            padding: 0 16px 16px 16px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .card-title {
+            font-family: var(--font-mono);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-green);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .card-text {
+            color: var(--text-main);
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        .card-text p {
+            margin-bottom: 8px;
+        }
+
+        .card-read-more {
+            display: inline-block;
+            color: var(--accent-green);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(0, 255, 102, 0.3);
+            transition: border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .card-read-more:hover {
+            border-bottom-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .no-posts {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 14px;
+            border: 1px dashed var(--border-light);
+            border-radius: 6px;
+        }
+
+        footer {
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-light);
+            padding: 30px 0;
+            margin-top: 40px;
+        }
+
+        /* --- MOBILE RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .feed-container {
+                margin-top: 80px;
+                padding: 0 12px;
+            }
+
+            .post-card {
+                margin-bottom: 24px;
+                border-radius: 6px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="hamburger" onclick="toggleMenu()" id="menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <div class="menu-overlay" id="mobile-menu">
+        <a href="index.html" onclick="toggleMenu()">Home</a>
+        <a href="blog.html" onclick="toggleMenu()">Blog</a>
+        <a href="https://www.instagram.com/thelionbro024/" target="_blank" onclick="toggleMenu()">Instagram</a>
+        <a href="https://bere.al/thelionbro024/" target="_blank" onclick="toggleMenu()">BeReal</a>
+        <a href="https://evolvplatform.com/" target="_blank" onclick="toggleMenu()">Evolv.Platform</a>
+        <a href="mailto:thelionbro024@gmail.com" onclick="toggleMenu()">Email</a>
+    </div>
+
+    <main class="feed-container">
+        <div class="no-posts">No blog posts yet. Visit the local admin panel to add one!</div>
+        
+        <footer>
+            <div>Operated/Saved by Grace // © 2026</div>
+        </footer>
+    </main>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('active');
+
+            const lines = document.querySelectorAll('.hamburger span');
+            if (menu.classList.contains('active')) {
+                lines[0].style.transform = 'translateY(8px) rotate(45deg)';
+                lines[1].style.opacity = '0';
+                lines[2].style.transform = 'translateY(-8px) rotate(-45deg)';
+            } else {
+                lines[0].style.transform = 'none';
+                lines[1].style.opacity = '1';
+                lines[2].style.transform = 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>
