@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
     <title>Blog Admin // whoami</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -17,24 +17,172 @@
             --card-bg: #12181c;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.6;
+        }
+
+        /* ─── PASSWORD GATE ─────────────────────────────────────────── */
+        #auth-gate {
+            position: fixed;
+            inset: 0;
+            background-color: var(--bg-color);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #auth-gate.hidden { display: none; }
+
+        .auth-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .auth-logo {
+            font-family: var(--font-mono);
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+
+        .auth-logo span { color: var(--accent-green); }
+
+        .auth-subtitle {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 36px;
+        }
+
+        .auth-biometric-btn {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(0, 255, 102, 0.08);
+            border: 1.5px solid rgba(0, 255, 102, 0.3);
+            color: var(--accent-green);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px auto;
+            transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+            font-size: 28px;
+        }
+
+        .auth-biometric-btn:hover {
+            background: rgba(0, 255, 102, 0.15);
+            border-color: var(--accent-green);
+            transform: scale(1.05);
+        }
+
+        .auth-biometric-btn.loading {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .auth-biometric-label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 28px;
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: var(--border-light);
+        }
+
+        .auth-input {
+            width: 100%;
+            background-color: rgba(11, 15, 18, 0.6);
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            padding: 12px 14px;
+            color: #ffffff;
+            font-size: 15px;
+            font-family: var(--font-mono);
+            letter-spacing: 0.1em;
+            text-align: center;
+            transition: border-color 0.2s ease;
+            margin-bottom: 14px;
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 8px rgba(0, 255, 102, 0.1);
+        }
+
+        .auth-submit-btn {
+            width: 100%;
+            background: transparent;
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .auth-submit-btn:hover {
+            background-color: var(--accent-green);
+            color: var(--bg-color);
+        }
+
+        .auth-error {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--accent-red);
+            margin-top: 10px;
+            min-height: 18px;
+        }
+
+        /* ─── ADMIN LAYOUT ─────────────────────────────────────────── */
+        #admin-app {
             padding: 40px 20px;
         }
 
-        .admin-container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+        .admin-container { max-width: 1100px; margin: 0 auto; }
 
         header {
             margin-bottom: 40px;
@@ -43,71 +191,71 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
-        h1 {
-            font-size: 28px;
-            color: #ffffff;
-            font-weight: 700;
-        }
+        h1 { font-size: 26px; color: #ffffff; font-weight: 700; }
+        h1 span { color: var(--accent-green); }
 
-        h1 span {
-            color: var(--accent-green);
-        }
+        .nav-links { display: flex; gap: 4px; flex-wrap: wrap; }
 
         .nav-links a {
             color: var(--text-muted);
             text-decoration: none;
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 12px;
             transition: color 0.2s ease;
-            margin-left: 20px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: 1px solid transparent;
         }
 
         .nav-links a:hover {
             color: var(--accent-green);
+            border-color: rgba(0, 255, 102, 0.2);
         }
 
         .layout {
             display: grid;
             grid-template-columns: 1.2fr 1fr;
-            gap: 40px;
+            gap: 30px;
         }
 
-        @media (max-width: 800px) {
-            .layout {
-                grid-template-columns: 1fr;
-            }
+        @media (max-width: 700px) {
+            .layout { grid-template-columns: 1fr; }
+            .admin-container { padding: 0; }
+            #admin-app { padding: 20px 14px; }
+            h1 { font-size: 20px; }
         }
 
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 8px;
-            padding: 30px;
-            margin-bottom: 30px;
+            border-radius: 10px;
+            padding: 26px;
+            margin-bottom: 26px;
         }
 
         h2 {
             font-family: var(--font-mono);
-            font-size: 18px;
+            font-size: 13px;
             color: var(--accent-green);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 24px;
+            letter-spacing: 0.06em;
+            margin-bottom: 22px;
         }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+        .form-group { margin-bottom: 18px; }
 
         label {
             display: block;
             font-family: var(--font-mono);
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-muted);
             text-transform: uppercase;
-            margin-bottom: 8px;
+            letter-spacing: 0.04em;
+            margin-bottom: 7px;
         }
 
         input[type="text"],
@@ -115,8 +263,8 @@
             width: 100%;
             background-color: rgba(11, 15, 18, 0.5);
             border: 1px solid var(--border-light);
-            border-radius: 4px;
-            padding: 12px;
+            border-radius: 5px;
+            padding: 11px 13px;
             color: #ffffff;
             font-size: 15px;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -126,20 +274,79 @@
         textarea:focus {
             outline: none;
             border-color: var(--accent-green);
-            box-shadow: 0 0 8px rgba(0, 255, 102, 0.1);
+            box-shadow: 0 0 8px rgba(0, 255, 102, 0.08);
         }
 
         textarea {
-            min-height: 200px;
+            min-height: 180px;
             resize: vertical;
-            line-height: 1.6;
+            line-height: 1.65;
+            font-size: 14px;
         }
 
-        /* Drag & Drop Zone */
+        @media (max-width: 700px) {
+            textarea { min-height: 220px; font-size: 16px; }
+            input[type="text"] { font-size: 16px; }
+        }
+
+        /* Toggle / checkbox */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0;
+        }
+
+        .toggle-switch {
+            width: 38px;
+            height: 20px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            position: relative;
+            transition: background-color 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.2s ease;
+        }
+
+        input[type="checkbox"].toggle-input { display: none; }
+
+        input[type="checkbox"].toggle-input:checked + .toggle-switch {
+            background-color: var(--accent-green);
+        }
+
+        input[type="checkbox"].toggle-input:checked + .toggle-switch::after {
+            transform: translateX(18px);
+        }
+
+        /* ─── DROPZONE ─────────────────────────────────────────────── */
         .dropzone {
             border: 2px dashed var(--border-light);
-            border-radius: 6px;
-            padding: 30px;
+            border-radius: 7px;
+            padding: 24px;
             text-align: center;
             cursor: pointer;
             transition: border-color 0.2s ease, background-color 0.2s ease;
@@ -152,177 +359,256 @@
             background-color: rgba(0, 255, 102, 0.02);
         }
 
-        .dropzone p {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-        }
-
-        .dropzone span {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            color: var(--accent-green);
-            text-transform: uppercase;
-        }
+        .dropzone p { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+        .dropzone .hint { font-family: var(--font-mono); font-size: 11px; color: var(--accent-green); text-transform: uppercase; }
 
         .dropzone input[type="file"] {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             opacity: 0;
             cursor: pointer;
+            width: 100%;
+            height: 100%;
         }
 
-        .preview-container {
-            margin-top: 15px;
-            display: none;
+        /* Image thumbnail strip */
+        .thumb-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .thumb-item {
             position: relative;
-            aspect-ratio: 16/9;
-            border-radius: 4px;
+            width: 70px;
+            height: 70px;
+            border-radius: 5px;
             overflow: hidden;
             border: 1px solid var(--border-light);
+            flex-shrink: 0;
         }
 
-        .preview-container img {
+        .thumb-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .remove-preview {
+        .thumb-remove {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: rgba(11, 15, 18, 0.8);
-            border: 1px solid var(--border-light);
-            color: var(--accent-red);
+            top: 3px;
+            right: 3px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            background-color: rgba(255,51,102,0.85);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 11px;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            font-size: 16px;
+            line-height: 1;
             font-weight: bold;
-            transition: background-color 0.2s ease;
         }
 
-        .remove-preview:hover {
-            background-color: var(--accent-red);
-            color: #ffffff;
+        .thumb-count {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 6px;
         }
 
+        /* Profile picture preview */
+        .avatar-preview-wrap {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .avatar-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-green);
+        }
+
+        .avatar-info {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* ─── BUTTONS ──────────────────────────────────────────────── */
         .btn {
-            display: inline-block;
+            display: block;
+            width: 100%;
             background-color: transparent;
             color: var(--accent-green);
             border: 1px solid var(--accent-green);
             font-family: var(--font-mono);
-            font-size: 13px;
+            font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            padding: 12px 24px;
-            border-radius: 4px;
+            padding: 13px 24px;
+            border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
             transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
-            width: 100%;
         }
 
-        .btn:hover {
-            background-color: var(--accent-green);
-            color: var(--bg-color);
+        .btn:hover { background-color: var(--accent-green); color: var(--bg-color); }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-sm {
+            display: inline-block;
+            width: auto;
+            padding: 7px 14px;
+            font-size: 11px;
         }
 
-        .btn:active {
-            transform: scale(0.98);
+        .btn-secondary {
+            color: var(--text-muted);
+            border-color: var(--border-light);
+            margin-top: 8px;
         }
 
-        /* Post list */
-        .posts-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+        .btn-secondary:hover { background-color: rgba(255,255,255,0.05); color: var(--text-main); }
 
-        .post-card {
+        /* ─── MANAGE POSTS LIST ────────────────────────────────────── */
+        .posts-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .post-item {
             display: flex;
             align-items: center;
             background-color: rgba(11, 15, 18, 0.4);
             border: 1px solid var(--border-light);
-            border-radius: 6px;
-            padding: 12px;
-            gap: 15px;
+            border-radius: 7px;
+            padding: 10px 12px;
+            gap: 12px;
+            transition: border-color 0.2s ease;
         }
 
-        .post-card-thumb {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 4px;
+        .post-item:hover { border-color: rgba(255,255,255,0.15); }
+
+        .post-thumb-wrap {
+            width: 52px;
+            height: 52px;
+            border-radius: 5px;
+            overflow: hidden;
             border: 1px solid var(--border-light);
             background-color: #0b0f12;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .post-card-info {
-            flex: 1;
-            min-width: 0;
+        .post-thumb-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
-        .post-card-title {
-            font-size: 15px;
+        .post-thumb-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+
+        .post-info { flex: 1; min-width: 0; }
+
+        .post-title-text {
+            font-size: 13px;
             font-weight: 600;
             color: #ffffff;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .post-card-date {
+        .post-date-text {
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-muted);
         }
 
-        .post-card-actions {
+        .post-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+        .likes-input-wrap {
             display: flex;
-            gap: 10px;
+            align-items: center;
+            gap: 4px;
         }
+
+        .likes-input-wrap svg { color: var(--text-muted); flex-shrink: 0; }
+
+        .likes-input {
+            width: 52px;
+            background-color: rgba(11, 15, 18, 0.6);
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            padding: 4px 6px;
+            color: #ffffff;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            text-align: center;
+            transition: border-color 0.2s ease;
+        }
+
+        .likes-input:focus { outline: none; border-color: var(--accent-green); }
+
+        .btn-set-likes {
+            background: none;
+            border: 1px solid rgba(0, 255, 102, 0.3);
+            color: var(--accent-green);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-set-likes:hover { background-color: rgba(0, 255, 102, 0.1); }
 
         .btn-delete {
             background: none;
-            border: 1px solid rgba(255, 51, 102, 0.4);
+            border: 1px solid rgba(255, 51, 102, 0.35);
             color: var(--accent-red);
             font-family: var(--font-mono);
             font-size: 10px;
             text-transform: uppercase;
-            padding: 6px 12px;
+            padding: 5px 10px;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.2s ease, color 0.2s ease;
         }
 
-        .btn-delete:hover {
-            background-color: var(--accent-red);
-            color: #ffffff;
-            border-color: var(--accent-red);
-        }
+        .btn-delete:hover { background-color: var(--accent-red); color: #ffffff; border-color: var(--accent-red); }
 
         .no-data {
             text-align: center;
-            padding: 40px 20px;
+            padding: 36px 20px;
             color: var(--text-muted);
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 13px;
             border: 1px dashed var(--border-light);
-            border-radius: 6px;
+            border-radius: 7px;
         }
 
-        /* Notifications */
+        /* ─── NOTIFICATION TOAST ──────────────────────────────────── */
         .notification {
             position: fixed;
             bottom: 20px;
@@ -330,9 +616,9 @@
             background-color: var(--card-bg);
             border-left: 4px solid var(--accent-green);
             color: #ffffff;
-            padding: 15px 20px;
-            border-radius: 4px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            padding: 14px 18px;
+            border-radius: 5px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -340,63 +626,153 @@
             opacity: 0;
             transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
             z-index: 1000;
+            max-width: 320px;
+            font-size: 14px;
         }
 
-        .notification.show {
-            transform: translateY(0);
-            opacity: 1;
+        .notification.show { transform: translateY(0); opacity: 1; }
+        .notification.error { border-left-color: var(--accent-red); }
+
+        /* Gallery section */
+        .gallery-section {
+            display: none;
+            margin-top: 14px;
         }
 
-        .notification.error {
-            border-left-color: var(--accent-red);
+        .gallery-section.visible { display: block; }
+
+        /* Lock icon */
+        .lock-hint {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 14px;
+        }
+
+        @media (max-width: 480px) {
+            .post-actions { flex-direction: column; align-items: flex-end; gap: 5px; }
+            .likes-input-wrap { display: none; }
+            .notification { left: 14px; right: 14px; bottom: 14px; max-width: 100%; }
         }
     </style>
 </head>
 <body>
 
+<!-- ─── PASSWORD GATE ──────────────────────────────────────────────── -->
+<div id="auth-gate">
+    <div class="auth-card">
+        <div class="auth-logo">whoami<span>.</span></div>
+        <div class="auth-subtitle">Admin Panel Access</div>
+
+        <button class="auth-biometric-btn" id="bio-btn" title="Use Windows Hello / Biometrics">
+            <!-- Fingerprint icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2C9.38 2 7 3.38 5.5 5.5"/>
+                <path d="M18.5 5.5C17 3.38 14.62 2 12 2"/>
+                <path d="M12 8a4 4 0 0 1 4 4c0 1.5-.5 3-1.5 4"/>
+                <path d="M8 12a4 4 0 0 1 4-4"/>
+                <path d="M7 16.5C6 15 5.5 13.5 5.5 12a6.5 6.5 0 0 1 .74-3"/>
+                <path d="M12 8v1"/>
+                <path d="M12 12v4"/>
+                <path d="M9 16c.6 1 1.3 1.8 2 2.4"/>
+                <path d="M15.5 16.5c-.5.8-1 1.5-1.5 2"/>
+                <path d="M18 13c0 2-.5 4-2 5.5"/>
+            </svg>
+        </button>
+        <div class="auth-biometric-label" id="bio-label">Touch ID / Windows Hello</div>
+
+        <div class="auth-divider">or use password</div>
+
+        <input type="password" class="auth-input" id="auth-password" placeholder="••••••••" autocomplete="current-password">
+        <button class="auth-submit-btn" id="auth-submit">Unlock Admin</button>
+
+        <div class="auth-error" id="auth-error"></div>
+        <div class="lock-hint" id="lock-hint">First time? A default password is: <strong>admin123</strong></div>
+    </div>
+</div>
+
+<!-- ─── ADMIN APP ─────────────────────────────────────────────────── -->
+<div id="admin-app" style="display:none;">
     <div class="admin-container">
         <header>
             <h1>Blog Creator <span>&amp;</span> CMS</h1>
             <div class="nav-links">
                 <a href="/index.html" target="_blank">View Site</a>
                 <a href="/blog.html" target="_blank">View Blog</a>
+                <a href="#" onclick="lockAdmin()">Lock</a>
             </div>
         </header>
 
         <div class="layout">
-            <!-- Left: Create Post Form -->
-            <div class="card">
-                <h2>Create New Post</h2>
-                <form id="post-form">
-                    <div class="form-group">
-                        <label for="post-title">Post Title</label>
-                        <input type="text" id="post-title" required placeholder="What have you been up to?">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="post-content">Post Content</label>
-                        <textarea id="post-content" required placeholder="Write your story here... Double Enter creates a new paragraph."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Post Image (Instagram style)</label>
-                        <div class="dropzone" id="dropzone">
-                            <p>Drag &amp; drop post photo here, or click to browse</p>
-                            <span>Supports PNG, JPG, WEBP, GIF</span>
-                            <input type="file" id="post-image" accept="image/*">
+            <!-- ── Left: Create Post ───────────────────────────── -->
+            <div>
+                <div class="card">
+                    <h2>Create New Post</h2>
+                    <form id="post-form">
+                        <div class="form-group">
+                            <label for="post-title">Post Title</label>
+                            <input type="text" id="post-title" required placeholder="What have you been up to?">
                         </div>
-                        <div class="preview-container" id="preview-container">
-                            <div class="remove-preview" id="remove-preview">&times;</div>
-                            <img id="image-preview" src="" alt="Preview">
-                        </div>
-                    </div>
 
-                    <button type="submit" class="btn" id="submit-btn">Publish Post</button>
-                </form>
+                        <div class="form-group">
+                            <label for="post-content">Post Content</label>
+                            <textarea id="post-content" required placeholder="Write your story here...&#10;&#10;Double Enter creates a new paragraph."></textarea>
+                        </div>
+
+                        <!-- Carousel Images -->
+                        <div class="form-group">
+                            <label>Post Images (optional — Instagram style)</label>
+                            <div class="dropzone" id="carousel-dropzone">
+                                <p>Drag &amp; drop photos, or click to browse</p>
+                                <span class="hint">Multiple images = carousel &bull; PNG, JPG, WEBP</span>
+                                <input type="file" id="carousel-file-input" accept="image/*" multiple>
+                            </div>
+                            <div class="thumb-strip" id="carousel-thumbs"></div>
+                            <div class="thumb-count" id="carousel-count"></div>
+                        </div>
+
+                        <!-- Gallery Toggle -->
+                        <div class="form-group">
+                            <label class="toggle-label" for="gallery-toggle">
+                                <input type="checkbox" class="toggle-input" id="gallery-toggle">
+                                <span class="toggle-switch"></span>
+                                Include a Photo Gallery
+                            </label>
+
+                            <div class="gallery-section" id="gallery-section">
+                                <div class="dropzone" id="gallery-dropzone" style="margin-top:10px;">
+                                    <p>Drag &amp; drop gallery photos, or click to browse</p>
+                                    <span class="hint">These appear on the gallery page</span>
+                                    <input type="file" id="gallery-file-input" accept="image/*" multiple>
+                                </div>
+                                <div class="thumb-strip" id="gallery-thumbs"></div>
+                                <div class="thumb-count" id="gallery-count"></div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn" id="submit-btn">Publish Post</button>
+                    </form>
+                </div>
+
+                <!-- Profile Picture -->
+                <div class="card">
+                    <h2>Profile Picture</h2>
+                    <div class="dropzone" id="avatar-dropzone" style="padding:18px;">
+                        <p>Click or drag to update your profile picture</p>
+                        <span class="hint">Shown in blog post cards</span>
+                        <input type="file" id="avatar-file-input" accept="image/*">
+                    </div>
+                    <div class="avatar-preview-wrap" id="avatar-preview-wrap" style="display:none;">
+                        <img class="avatar-preview" id="avatar-preview" src="" alt="Avatar preview">
+                        <div class="avatar-info" id="avatar-info">Preview</div>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="avatar-upload-btn" style="margin-top:12px; display:none;">Save Profile Picture</button>
+                </div>
             </div>
 
-            <!-- Right: Manage Posts -->
-            <div class="card">
+            <!-- ── Right: Manage Posts ─────────────────────────── -->
+            <div class="card" style="align-self: flex-start;">
                 <h2>Manage Posts</h2>
                 <div class="posts-list" id="posts-list">
                     <div class="no-data">Loading posts...</div>
@@ -404,221 +780,515 @@
             </div>
         </div>
     </div>
+</div>
 
-    <div class="notification" id="notification">
-        <span id="notification-message">Post published successfully!</span>
-    </div>
+<!-- Toast -->
+<div class="notification" id="notification">
+    <span id="notification-message">Done!</span>
+</div>
 
-    <script>
-        const form = document.getElementById('post-form');
-        const fileInput = document.getElementById('post-image');
-        const dropzone = document.getElementById('dropzone');
-        const previewContainer = document.getElementById('preview-container');
-        const imagePreview = document.getElementById('image-preview');
-        const removePreview = document.getElementById('remove-preview');
-        const postsList = document.getElementById('posts-list');
-        const notification = document.getElementById('notification');
-        const notificationMessage = document.getElementById('notification-message');
-        const submitBtn = document.getElementById('submit-btn');
+<script>
+// =============================================================
+// AUTH / PASSWORD GATE
+// =============================================================
+const ADMIN_PASSWORD_KEY = 'whoami_admin_pass';
+const DEFAULT_PASSWORD   = 'admin123';
 
-        let base64Image = '';
-        let imageName = '';
+const authGate  = document.getElementById('auth-gate');
+const adminApp  = document.getElementById('admin-app');
+const authError = document.getElementById('auth-error');
+const lockHint  = document.getElementById('lock-hint');
 
-        // Fetch posts and render
-        async function fetchPosts() {
-            try {
-                const res = await fetch('/api/posts');
-                const posts = await res.json();
-                renderPosts(posts);
-            } catch (err) {
-                console.error(err);
-                postsList.innerHTML = '<div class="no-data" style="color: var(--accent-red)">Failed to load posts</div>';
-            }
-        }
+// Simple hash (not cryptographic, just prevents casual snooping)
+async function hashPassword(pw) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
-        function renderPosts(posts) {
-            if (!posts || posts.length === 0) {
-                postsList.innerHTML = '<div class="no-data">No posts published yet.</div>';
-                return;
-            }
+async function checkPassword(pw) {
+    const stored = localStorage.getItem(ADMIN_PASSWORD_KEY);
+    const hashed = await hashPassword(pw);
+    if (!stored) {
+        // First time — set default password hash
+        const defaultHash = await hashPassword(DEFAULT_PASSWORD);
+        localStorage.setItem(ADMIN_PASSWORD_KEY, defaultHash);
+        return hashed === defaultHash;
+    }
+    return hashed === stored;
+}
 
-            postsList.innerHTML = posts.map(post => {
-                const dateStr = formatDate(post.updated_at);
-                const thumb = post.image_path 
-                    ? `/${post.image_path}` 
-                    : `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><rect width="60" height="60" fill="%230b0f12"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2395a5b2" font-size="8">No Image</text></svg>`;
-                
-                return `
-                    <div class="post-card">
-                        <img class="post-card-thumb" src="${thumb}" alt="thumbnail" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22><rect width=%2260%22 height=%2260%22 fill=%22%230b0f12%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%2395a5b2%22 font-size=%228%22>Error</text></svg>'">
-                        <div class="post-card-info">
-                            <div class="post-card-title">${escapeHTML(post.title)}</div>
-                            <div class="post-card-date">${dateStr}</div>
-                        </div>
-                        <div class="post-card-actions">
-                            <button class="btn-delete" onclick="deletePost('${post.slug}')">Delete</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
+function unlockAdmin() {
+    authGate.classList.add('hidden');
+    adminApp.style.display = 'block';
+    sessionStorage.setItem('admin_unlocked', '1');
+    fetchPosts();
+}
 
-        function formatDate(isoStr) {
-            try {
-                const d = new Date(isoStr);
-                return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) + ' at ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-            } catch(e) {
-                return isoStr;
-            }
-        }
+function lockAdmin() {
+    sessionStorage.removeItem('admin_unlocked');
+    authGate.classList.remove('hidden');
+    adminApp.style.display = 'none';
+    document.getElementById('auth-password').value = '';
+    authError.textContent = '';
+}
 
-        function escapeHTML(str) {
-            return str.replace(/[&<>'"]/g, 
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-            );
-        }
+// Check if already unlocked this session
+if (sessionStorage.getItem('admin_unlocked') === '1') {
+    unlockAdmin();
+}
 
-        // Handle file select & previews
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            processFile(file);
-        });
+document.getElementById('auth-submit').addEventListener('click', async () => {
+    const pw = document.getElementById('auth-password').value;
+    if (!pw) { authError.textContent = 'Please enter a password.'; return; }
+    const ok = await checkPassword(pw);
+    if (ok) {
+        authError.textContent = '';
+        unlockAdmin();
+    } else {
+        authError.textContent = 'Incorrect password. Try again.';
+        document.getElementById('auth-password').value = '';
+    }
+});
 
-        // Drag & Drop event handlers
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropzone.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                dropzone.classList.add('dragover');
-            }, false);
-        });
+document.getElementById('auth-password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('auth-submit').click();
+});
 
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropzone.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                dropzone.classList.remove('dragover');
-            }, false);
-        });
+// ─── WebAuthn (Biometrics) ─────────────────────────────────────
+const bioBtn   = document.getElementById('bio-btn');
+const bioLabel = document.getElementById('bio-label');
 
-        dropzone.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const file = dt.files[0];
-            processFile(file);
-        });
+const CRED_ID_KEY = 'whoami_webauthn_cred';
 
-        function processFile(file) {
-            if (!file) return;
-            if (!file.type.startsWith('image/')) {
-                showNotification('Please upload an image file.', true);
-                return;
-            }
+async function tryWebAuthn() {
+    if (!window.PublicKeyCredential) {
+        bioLabel.textContent = 'Biometrics not supported';
+        bioBtn.style.opacity = '0.4';
+        bioBtn.disabled = true;
+        return;
+    }
 
-            imageName = file.name;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                base64Image = e.target.result;
-                imagePreview.src = base64Image;
-                dropzone.style.display = 'none';
-                previewContainer.style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        }
+    const storedCredId = localStorage.getItem(CRED_ID_KEY);
 
-        // Remove Preview
-        removePreview.addEventListener('click', () => {
-            base64Image = '';
-            imageName = '';
-            fileInput.value = '';
-            imagePreview.src = '';
-            previewContainer.style.display = 'none';
-            dropzone.style.display = 'block';
-        });
+    if (!storedCredId) {
+        // Register biometrics first time
+        bioLabel.textContent = 'Registering biometrics...';
+        bioBtn.classList.add('loading');
+        try {
+            const challenge = crypto.getRandomValues(new Uint8Array(32));
+            const userId    = crypto.getRandomValues(new Uint8Array(16));
 
-        // Show toast notifications
-        function showNotification(message, isError = false) {
-            notificationMessage.textContent = message;
-            if (isError) {
-                notification.classList.add('error');
-            } else {
-                notification.classList.remove('error');
-            }
-            notification.classList.add('show');
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
-
-        // Create Post Submission
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const title = document.getElementById('post-title').value.trim();
-            const content = document.getElementById('post-content').value.trim();
-
-            if (!title || !content) {
-                showNotification('Title and content are required.', true);
-                return;
-            }
-
-            submitBtn.textContent = 'Publishing...';
-            submitBtn.disabled = true;
-
-            const payload = {
-                title,
-                content,
-                image: base64Image,
-                image_name: imageName
-            };
-
-            try {
-                const res = await fetch('/api/posts', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await res.json();
-                if (res.ok) {
-                    showNotification('Post published successfully!');
-                    form.reset();
-                    removePreview.click();
-                    fetchPosts();
-                } else {
-                    showNotification(result.error || 'Failed to publish post', true);
+            const cred = await navigator.credentials.create({
+                publicKey: {
+                    challenge,
+                    rp: { name: 'whoami admin', id: location.hostname },
+                    user: { id: userId, name: 'admin', displayName: 'Admin' },
+                    pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+                    authenticatorSelection: {
+                        authenticatorAttachment: 'platform',
+                        userVerification: 'required'
+                    },
+                    timeout: 60000
                 }
-            } catch (err) {
-                console.error(err);
-                showNotification('Network error occurred.', true);
-            } finally {
-                submitBtn.textContent = 'Publish Post';
-                submitBtn.disabled = false;
+            });
+
+            // Store credential ID
+            const credIdB64 = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+            localStorage.setItem(CRED_ID_KEY, credIdB64);
+            bioBtn.classList.remove('loading');
+            bioLabel.textContent = 'Biometrics registered!';
+            showNotification('Biometrics registered. You can now use it to login.');
+            setTimeout(() => { bioLabel.textContent = 'Touch ID / Windows Hello'; }, 2000);
+
+        } catch (e) {
+            bioBtn.classList.remove('loading');
+            bioLabel.textContent = 'Touch ID / Windows Hello';
+            if (e.name !== 'NotAllowedError') {
+                showNotification('Could not register biometrics: ' + e.message, true);
+            }
+        }
+        return;
+    }
+
+    // Authenticate with stored credential
+    bioLabel.textContent = 'Verifying...';
+    bioBtn.classList.add('loading');
+    try {
+        const challenge = crypto.getRandomValues(new Uint8Array(32));
+        const credIdBytes = Uint8Array.from(atob(storedCredId), c => c.charCodeAt(0));
+
+        await navigator.credentials.get({
+            publicKey: {
+                challenge,
+                allowCredentials: [{ type: 'public-key', id: credIdBytes }],
+                userVerification: 'required',
+                timeout: 60000
             }
         });
 
-        // Delete Post
-        async function deletePost(slug) {
-            if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
-                return;
-            }
+        bioBtn.classList.remove('loading');
+        bioLabel.textContent = 'Verified!';
+        setTimeout(() => unlockAdmin(), 300);
 
-            try {
-                const res = await fetch(`/api/posts/${slug}`, {
-                    method: 'DELETE'
-                });
-
-                const result = await res.json();
-                if (res.ok) {
-                    showNotification('Post deleted successfully!');
-                    fetchPosts();
-                } else {
-                    showNotification(result.error || 'Failed to delete post', true);
-                }
-            } catch (err) {
-                console.error(err);
-                showNotification('Network error occurred.', true);
-            }
+    } catch (e) {
+        bioBtn.classList.remove('loading');
+        bioLabel.textContent = 'Touch ID / Windows Hello';
+        if (e.name !== 'NotAllowedError') {
+            authError.textContent = 'Biometric verification failed.';
         }
+    }
+}
 
-        // Initial Load
-        fetchPosts();
-    </script>
+bioBtn.addEventListener('click', tryWebAuthn);
+
+// =============================================================
+// IMAGE HANDLING HELPERS
+// =============================================================
+function makeImageStore() {
+    return { files: [] };
+}
+
+const carouselStore = makeImageStore();
+const galleryStore  = makeImageStore();
+let   avatarFile    = null;
+
+function fileToBase64(file) {
+    return new Promise((res, rej) => {
+        const reader = new FileReader();
+        reader.onload = e => res(e.target.result);
+        reader.onerror = rej;
+        reader.readAsDataURL(file);
+    });
+}
+
+function renderThumbs(store, stripEl, countEl) {
+    stripEl.innerHTML = '';
+    store.files.forEach((file, i) => {
+        const url = URL.createObjectURL(file);
+        const item = document.createElement('div');
+        item.className = 'thumb-item';
+        item.innerHTML = `<img src="${url}" alt=""><button class="thumb-remove" data-idx="${i}">&times;</button>`;
+        item.querySelector('.thumb-remove').addEventListener('click', () => {
+            store.files.splice(i, 1);
+            renderThumbs(store, stripEl, countEl);
+        });
+        stripEl.appendChild(item);
+    });
+    if (countEl) {
+        countEl.textContent = store.files.length > 0
+            ? `${store.files.length} image${store.files.length > 1 ? 's' : ''} selected`
+            : '';
+    }
+}
+
+function attachDropzone(dropzone, fileInput, store, stripEl, countEl) {
+    fileInput.addEventListener('change', e => {
+        const files = Array.from(e.target.files);
+        files.forEach(f => { if (f.type.startsWith('image/')) store.files.push(f); });
+        renderThumbs(store, stripEl, countEl);
+        fileInput.value = '';
+    });
+
+    ['dragenter', 'dragover'].forEach(ev => {
+        dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.add('dragover'); }, false);
+    });
+    ['dragleave', 'drop'].forEach(ev => {
+        dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.remove('dragover'); }, false);
+    });
+    dropzone.addEventListener('drop', e => {
+        const files = Array.from(e.dataTransfer.files);
+        files.forEach(f => { if (f.type.startsWith('image/')) store.files.push(f); });
+        renderThumbs(store, stripEl, countEl);
+    });
+}
+
+// Attach dropzones
+attachDropzone(
+    document.getElementById('carousel-dropzone'),
+    document.getElementById('carousel-file-input'),
+    carouselStore,
+    document.getElementById('carousel-thumbs'),
+    document.getElementById('carousel-count')
+);
+
+attachDropzone(
+    document.getElementById('gallery-dropzone'),
+    document.getElementById('gallery-file-input'),
+    galleryStore,
+    document.getElementById('gallery-thumbs'),
+    document.getElementById('gallery-count')
+);
+
+// Gallery toggle
+document.getElementById('gallery-toggle').addEventListener('change', function() {
+    const sec = document.getElementById('gallery-section');
+    if (this.checked) {
+        sec.classList.add('visible');
+    } else {
+        sec.classList.remove('visible');
+        galleryStore.files = [];
+        renderThumbs(galleryStore, document.getElementById('gallery-thumbs'), document.getElementById('gallery-count'));
+    }
+});
+
+// =============================================================
+// AVATAR
+// =============================================================
+const avatarDropzone  = document.getElementById('avatar-dropzone');
+const avatarFileInput = document.getElementById('avatar-file-input');
+const avatarPreview   = document.getElementById('avatar-preview');
+const avatarPreviewWrap = document.getElementById('avatar-preview-wrap');
+const avatarInfo      = document.getElementById('avatar-info');
+const avatarUploadBtn = document.getElementById('avatar-upload-btn');
+
+avatarFileInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    avatarFile = file;
+    const url = URL.createObjectURL(file);
+    avatarPreview.src = url;
+    avatarInfo.textContent = file.name;
+    avatarPreviewWrap.style.display = 'flex';
+    avatarUploadBtn.style.display = 'inline-block';
+});
+
+['dragenter','dragover'].forEach(ev => {
+    avatarDropzone.addEventListener(ev, e => { e.preventDefault(); avatarDropzone.classList.add('dragover'); }, false);
+});
+['dragleave','drop'].forEach(ev => {
+    avatarDropzone.addEventListener(ev, e => { e.preventDefault(); avatarDropzone.classList.remove('dragover'); }, false);
+});
+avatarDropzone.addEventListener('drop', e => {
+    const file = e.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    avatarFile = file;
+    const url = URL.createObjectURL(file);
+    avatarPreview.src = url;
+    avatarInfo.textContent = file.name;
+    avatarPreviewWrap.style.display = 'flex';
+    avatarUploadBtn.style.display = 'inline-block';
+});
+
+avatarUploadBtn.addEventListener('click', async () => {
+    if (!avatarFile) return;
+    avatarUploadBtn.textContent = 'Saving...';
+    avatarUploadBtn.disabled = true;
+    try {
+        const b64 = await fileToBase64(avatarFile);
+        const res = await fetch('/api/profile-picture', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: b64 })
+        });
+        if (res.ok) {
+            showNotification('Profile picture saved!');
+            avatarFile = null;
+        } else {
+            const r = await res.json();
+            showNotification(r.error || 'Failed to save avatar', true);
+        }
+    } catch (err) {
+        showNotification('Network error', true);
+    } finally {
+        avatarUploadBtn.textContent = 'Save Profile Picture';
+        avatarUploadBtn.disabled = false;
+    }
+});
+
+// =============================================================
+// POSTS LIST
+// =============================================================
+const postsList = document.getElementById('posts-list');
+
+async function fetchPosts() {
+    try {
+        const res   = await fetch('/api/posts');
+        const posts = await res.json();
+        renderPosts(posts);
+    } catch (err) {
+        postsList.innerHTML = '<div class="no-data" style="color:var(--accent-red)">Failed to load posts</div>';
+    }
+}
+
+function formatDate(iso) {
+    try {
+        const d = new Date(iso);
+        return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch(e) { return iso; }
+}
+
+function renderPosts(posts) {
+    if (!posts || posts.length === 0) {
+        postsList.innerHTML = '<div class="no-data">No posts yet.</div>';
+        return;
+    }
+
+    postsList.innerHTML = '';
+    posts.forEach(post => {
+        const item = document.createElement('div');
+        item.className = 'post-item';
+
+        const thumbSrc = (post.image_paths && post.image_paths.length > 0)
+            ? '/' + post.image_paths[0]
+            : null;
+
+        const thumbHtml = thumbSrc
+            ? `<img src="${thumbSrc}" alt="thumb" onerror="this.parentElement.innerHTML='<div class=\\'post-thumb-placeholder\\'>📝</div>'">`
+            : `<div class="post-thumb-placeholder">📝</div>`;
+
+        const hasGallery = post.gallery_images && post.gallery_images.length > 0;
+        const galleryBadge = hasGallery
+            ? `<span style="margin-left:4px;font-family:var(--font-mono);font-size:9px;color:var(--text-muted);background:rgba(255,255,255,0.05);padding:2px 5px;border-radius:3px;">+gallery</span>`
+            : '';
+
+        item.innerHTML = `
+            <div class="post-thumb-wrap">${thumbHtml}</div>
+            <div class="post-info">
+                <div class="post-title-text">${escapeHTML(post.title)}${galleryBadge}</div>
+                <div class="post-date-text">${formatDate(post.updated_at)}</div>
+            </div>
+            <div class="post-actions">
+                <div class="likes-input-wrap" title="Like count">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    <input class="likes-input" type="number" value="${post.likes || 0}" min="0" data-slug="${post.slug}">
+                    <button class="btn-set-likes" data-slug="${post.slug}">Set</button>
+                </div>
+                <button class="btn-delete" data-slug="${post.slug}">Delete</button>
+            </div>
+        `;
+
+        item.querySelector('.btn-set-likes').addEventListener('click', async () => {
+            const input = item.querySelector('.likes-input');
+            const likes = parseInt(input.value) || 0;
+            await updateLikes(post.slug, likes);
+        });
+
+        item.querySelector('.btn-delete').addEventListener('click', () => deletePost(post.slug));
+
+        postsList.appendChild(item);
+    });
+}
+
+async function updateLikes(slug, likes) {
+    try {
+        const res = await fetch(`/api/posts/${slug}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ likes })
+        });
+        if (res.ok) {
+            showNotification('Likes updated!');
+            fetchPosts();
+        } else {
+            const r = await res.json();
+            showNotification(r.error || 'Failed to update likes', true);
+        }
+    } catch(e) {
+        showNotification('Network error', true);
+    }
+}
+
+async function deletePost(slug) {
+    if (!confirm('Delete this post? This cannot be undone.')) return;
+    try {
+        const res = await fetch(`/api/posts/${slug}`, { method: 'DELETE' });
+        const result = await res.json();
+        if (res.ok) { showNotification('Post deleted!'); fetchPosts(); }
+        else showNotification(result.error || 'Failed to delete', true);
+    } catch(e) {
+        showNotification('Network error', true);
+    }
+}
+
+function escapeHTML(str) {
+    return String(str).replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":"&#39;",'"':'&quot;'}[t] || t));
+}
+
+// =============================================================
+// FORM SUBMIT
+// =============================================================
+const form      = document.getElementById('post-form');
+const submitBtn = document.getElementById('submit-btn');
+
+form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const title   = document.getElementById('post-title').value.trim();
+    const content = document.getElementById('post-content').value.trim();
+
+    if (!title || !content) {
+        showNotification('Title and content are required.', true);
+        return;
+    }
+
+    submitBtn.textContent = 'Publishing...';
+    submitBtn.disabled = true;
+
+    try {
+        // Encode carousel images
+        const imagesPayload = await Promise.all(carouselStore.files.map(async f => ({
+            data: await fileToBase64(f),
+            name: f.name
+        })));
+
+        // Encode gallery images
+        const galleryPayload = await Promise.all(galleryStore.files.map(async f => ({
+            data: await fileToBase64(f),
+            name: f.name
+        })));
+
+        const payload = {
+            title,
+            content,
+            images: imagesPayload,
+            gallery_images: galleryPayload
+        };
+
+        const res    = await fetch('/api/posts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+
+        if (res.ok) {
+            showNotification('Post published!');
+            form.reset();
+            carouselStore.files = [];
+            galleryStore.files  = [];
+            renderThumbs(carouselStore, document.getElementById('carousel-thumbs'), document.getElementById('carousel-count'));
+            renderThumbs(galleryStore,  document.getElementById('gallery-thumbs'),  document.getElementById('gallery-count'));
+            document.getElementById('gallery-toggle').checked = false;
+            document.getElementById('gallery-section').classList.remove('visible');
+            fetchPosts();
+        } else {
+            showNotification(result.error || 'Failed to publish', true);
+        }
+    } catch(err) {
+        console.error(err);
+        showNotification('Error: ' + err.message, true);
+    } finally {
+        submitBtn.textContent = 'Publish Post';
+        submitBtn.disabled    = false;
+    }
+});
+
+// =============================================================
+// TOAST
+// =============================================================
+const notification        = document.getElementById('notification');
+const notificationMessage = document.getElementById('notification-message');
+let toastTimer;
+
+function showNotification(message, isError = false) {
+    notificationMessage.textContent = message;
+    notification.classList.toggle('error', isError);
+    notification.classList.remove('show');
+    clearTimeout(toastTimer);
+    requestAnimationFrame(() => {
+        notification.classList.add('show');
+        toastTimer = setTimeout(() => notification.classList.remove('show'), 3200);
+    });
+}
+</script>
 </body>
 </html>

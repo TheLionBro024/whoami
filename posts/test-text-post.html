@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
-    <title>Blog // whoami</title>
-    <meta name="description" content="Adriel Loewen's personal blog — life, faith, engineering, and everything in between.">
+    <title>Just Text Post // Blog</title>
+    <meta name="description" content="This is a text only post.">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
 
@@ -101,86 +101,71 @@
         }
 
 
-        /* --- FEED CONTAINER --- */
-        .feed-container {
-            max-width: 600px;
-            margin: 100px auto 60px auto;
-            padding: 0 16px;
-            box-sizing: border-box;
+        /* --- POST VIEW --- */
+        .post-container {
+            max-width: 680px;
+            margin: 120px auto 100px auto;
+            padding: 0 20px;
         }
 
-        /* --- POST CARD --- */
-        .post-card {
-            background-color: #12181c;
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            margin-bottom: 32px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .post-card:hover {
-            border-color: rgba(0, 255, 102, 0.35);
-            box-shadow: 0 8px 24px rgba(0, 255, 102, 0.08);
-        }
-
-        .card-header {
-            display: flex;
+        .back-link {
+            display: inline-flex;
             align-items: center;
-            padding: 14px 16px;
-            gap: 12px;
-        }
-
-        .card-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 1.5px solid var(--accent-green);
-            object-fit: cover;
-            background-color: var(--bg-color);
-            flex-shrink: 0;
-        }
-
-        .card-user-info {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.3;
-        }
-
-        .card-username {
-            font-size: 14px;
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        .card-time {
+            gap: 6px;
             font-family: var(--font-mono);
-            font-size: 10px;
-            color: var(--text-muted);
-            margin-top: 2px;
+            color: var(--accent-green);
+            text-decoration: none;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 36px;
+            border-bottom: 1px dashed rgba(0, 255, 102, 0.3);
+            transition: border-color 0.2s ease;
         }
 
-        /* --- CAROUSEL --- */
-        .card-carousel {
+        .back-link:hover {
+            border-bottom-color: var(--accent-green);
+        }
+
+        .post-header-title {
+            font-size: 38px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+            line-height: 1.2;
+            margin-bottom: 14px;
+        }
+
+        .post-meta {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 36px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .post-meta span { color: var(--accent-green); }
+
+        /* --- POST CAROUSEL --- */
+        .post-carousel {
             position: relative;
             width: 100%;
             overflow: hidden;
             background-color: #0b0f12;
-            border-top: 1px solid rgba(255,255,255,0.03);
-            border-bottom: 1px solid rgba(255,255,255,0.03);
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            margin-bottom: 36px;
             user-select: none;
         }
 
         .carousel-track {
             display: flex;
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            will-change: transform;
         }
 
         .carousel-slide {
             min-width: 100%;
-            overflow: hidden;
         }
 
         .carousel-slide img {
@@ -188,7 +173,7 @@
             height: auto;
             display: block;
             object-fit: cover;
-            max-height: 560px;
+            max-height: 600px;
         }
 
         .carousel-btn {
@@ -198,14 +183,14 @@
             background-color: rgba(11,15,18,0.7);
             border: 1px solid rgba(255,255,255,0.12);
             color: #ffffff;
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
             transition: background-color 0.2s ease;
             z-index: 2;
             backdrop-filter: blur(4px);
@@ -216,17 +201,17 @@
             border-color: var(--accent-green);
         }
 
-        .carousel-btn.prev { left: 10px; }
-        .carousel-btn.next { right: 10px; }
+        .carousel-btn.prev { left: 12px; }
+        .carousel-btn.next { right: 12px; }
         .carousel-btn.hidden { display: none; }
 
         .carousel-dots {
             position: absolute;
-            bottom: 10px;
+            bottom: 12px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 5px;
+            gap: 6px;
             z-index: 2;
         }
 
@@ -240,128 +225,66 @@
 
         .carousel-dot.active {
             background-color: #ffffff;
-            transform: scale(1.2);
+            transform: scale(1.3);
         }
 
         .carousel-counter {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 12px;
+            right: 12px;
             font-family: var(--font-mono);
             font-size: 11px;
             color: #ffffff;
             background-color: rgba(11,15,18,0.7);
-            padding: 3px 8px;
+            padding: 3px 10px;
             border-radius: 20px;
             backdrop-filter: blur(4px);
         }
 
-        /* --- ACTIONS --- */
-        .card-actions {
-            display: flex;
-            gap: 16px;
-            padding: 12px 16px 8px 16px;
-            align-items: center;
-        }
-
-        .action-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-family: var(--font-mono);
-            font-size: 12px;
-            transition: color 0.2s ease, transform 0.1s ease;
-            padding: 0;
-        }
-
-        .action-btn:hover {
-            color: var(--accent-green);
-            transform: scale(1.08);
-        }
-
-        .action-btn.liked {
-            color: #ff3366;
-        }
-
-        .action-btn svg {
-            display: block;
-        }
-
-        .bookmark-container {
-            margin-left: auto;
-        }
-
-        /* --- CAPTION AREA --- */
-        .card-caption {
-            padding: 4px 16px 16px 16px;
-        }
-
-        .card-title {
-            font-family: var(--font-mono);
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--accent-green);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
-
-        .card-text {
+        /* --- POST CONTENT --- */
+        .post-content {
+            font-size: 16px;
             color: var(--text-main);
-            margin-bottom: 12px;
-            display: -webkit-box;
-            -webkit-line-clamp: 4;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            font-size: 14px;
-            line-height: 1.65;
+            line-height: 1.85;
         }
 
-        /* Text-only post style */
-        .post-card.text-only .card-caption {
-            padding: 16px;
+        .post-content p {
+            margin-bottom: 24px;
         }
 
-        .post-card.text-only .card-title {
-            font-size: 17px;
-            margin-bottom: 10px;
-        }
-
-        .post-card.text-only .card-text {
-            font-size: 15px;
-            -webkit-line-clamp: 6;
-            color: var(--text-main);
-            line-height: 1.75;
-        }
-
-        .card-read-more {
-            display: inline-block;
+        .post-content a {
             color: var(--accent-green);
-            font-family: var(--font-mono);
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
             text-decoration: none;
-            border-bottom: 1px dashed rgba(0, 255, 102, 0.3);
+            border-bottom: 1px dashed rgba(0, 255, 102, 0.4);
             transition: border-color 0.2s ease;
         }
 
-        .card-read-more:hover {
+        .post-content a:hover {
             border-bottom-color: var(--accent-green);
         }
 
-        .no-posts {
-            text-align: center;
-            padding: 60px 20px;
+        /* --- GALLERY LINK --- */
+        .gallery-callout {
+            margin-top: 40px;
+            padding: 20px 24px;
+            border: 1px solid rgba(0, 255, 102, 0.2);
+            border-radius: 8px;
+            background-color: rgba(0, 255, 102, 0.03);
+            font-size: 15px;
             color: var(--text-muted);
-            font-family: var(--font-mono);
-            font-size: 14px;
-            border: 1px dashed var(--border-light);
-            border-radius: 6px;
+            line-height: 1.6;
+        }
+
+        .gallery-callout a {
+            color: var(--accent-green);
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(0, 255, 102, 0.4);
+            transition: border-color 0.2s ease;
+        }
+
+        .gallery-callout a:hover {
+            border-bottom-color: var(--accent-green);
         }
 
         footer {
@@ -370,19 +293,13 @@
             font-size: 11px;
             color: var(--text-muted);
             border-top: 1px solid var(--border-light);
-            padding: 30px 0;
-            margin-top: 40px;
+            padding-top: 40px;
+            margin-top: 60px;
         }
 
         @media (max-width: 768px) {
-            .feed-container {
-                margin-top: 80px;
-                padding: 0 10px;
-            }
-            .post-card {
-                margin-bottom: 20px;
-                border-radius: 8px;
-            }
+            .post-container { margin-top: 80px; }
+            .post-header-title { font-size: 28px; }
         }
     </style>
 </head>
@@ -398,16 +315,32 @@
     </nav>
 
     <div class="menu-overlay" id="mobile-menu">
-        <a href="/index.html" onclick="toggleMenu()">Home</a>
-        <a href="/blog.html" onclick="toggleMenu()">Blog</a>
+        <a href="../index.html" onclick="toggleMenu()">Home</a>
+        <a href="../blog.html" onclick="toggleMenu()">Blog</a>
         <a href="https://www.instagram.com/thelionbro024/" target="_blank" onclick="toggleMenu()">Instagram</a>
         <a href="https://bere.al/thelionbro024/" target="_blank" onclick="toggleMenu()">BeReal</a>
         <a href="https://evolvplatform.com/" target="_blank" onclick="toggleMenu()">Evolv.Platform</a>
         <a href="mailto:thelionbro024@gmail.com" onclick="toggleMenu()">Email</a>
     </div>
 
-    <main class="feed-container">
-        <div class="no-posts">No blog posts yet. Visit the local admin panel to add one!</div>
+
+    <main class="post-container">
+        <a href="../blog.html" class="back-link">&#8592; Back to Blog</a>
+
+        <article>
+            <h1 class="post-header-title">Just Text Post</h1>
+            <div class="post-meta">
+                Posted <span>June 13, 2026 at 12:00 AM</span>
+            </div>
+
+            
+
+            <div class="post-content">
+                <p>This is a text only post.</p>
+            </div>
+        </article>
+
+        
 
         <footer>
             <div>Operated/Saved by Grace // &copy; 2026</div>
@@ -432,23 +365,10 @@
         }
 
 
-        // Like button toggle (visual only)
-        document.querySelectorAll('.like-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                btn.classList.toggle('liked');
-                const icon = btn.querySelector('svg path');
-                if (btn.classList.contains('liked')) {
-                    btn.querySelector('svg').setAttribute('fill', '#ff3366');
-                    btn.querySelector('svg').setAttribute('stroke', '#ff3366');
-                } else {
-                    btn.querySelector('svg').setAttribute('fill', 'none');
-                    btn.querySelector('svg').setAttribute('stroke', 'currentColor');
-                }
-            });
-        });
-
-        // Carousel initializer
-        document.querySelectorAll('.card-carousel').forEach(carousel => {
+        // Post carousel
+        (function() {
+            const carousel = document.querySelector('.post-carousel');
+            if (!carousel) return;
             const track = carousel.querySelector('.carousel-track');
             const slides = carousel.querySelectorAll('.carousel-slide');
             const dots = carousel.querySelectorAll('.carousel-dot');
@@ -471,7 +391,6 @@
             if (prevBtn) prevBtn.addEventListener('click', () => goTo(current - 1));
             if (nextBtn) nextBtn.addEventListener('click', () => goTo(current + 1));
 
-            // Touch swipe
             let startX = 0;
             track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive: true});
             track.addEventListener('touchend', e => {
@@ -480,7 +399,7 @@
             }, {passive: true});
 
             goTo(0);
-        });
+        })();
     </script>
 </body>
 
