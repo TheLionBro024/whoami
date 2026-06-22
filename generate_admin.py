@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+import os
+
+HTML_CONTENT = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -433,3 +435,8 @@
 </script>
 </body>
 </html>
+"""
+
+with open("c:\\Users\\alfre\\Documents\\Adriel\\whoami\\admin.html", "w", encoding="utf-8") as f:
+    f.write(HTML_CONTENT)
+print("done")

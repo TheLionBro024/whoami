@@ -1,17 +1,18 @@
 # Engineering Roadmap & Feature Fixes
 
-
----
-
 ## 1. Core Backend Security & Environment
 
 ### Objective
-Migrate the administrative login interface from a client-side obfuscation pattern to a secure backend validation system running on Python (FastAPI).
+Migrate the administrative login interface from a client-side obfuscation pattern to a secure backend validation system running on Python (FastAPI), and align local routing architectures for production-parity edge tunneling.
 
 ### Tasks
 - [ ] **Create Local Environment Management**
   - Create a root `.env` file containing `SECRET_KEY`, `ALGORITHM`, and `ADMIN_PASSWORD_HASH`.
   - Add `.env` to `.gitignore` to protect production secrets.
+- [ ] **Configure Local Architecture for Cloudflare Tunneling**
+  - Set up the main application architecture to run the active backend/admin site on `localhost:8000/whoami`.
+  - Build out a clean, public-facing informative mockup website for **evolv.platform** served at the root `localhost:8000`.
+  - Ensure routing logic handles Host header forwarding gracefully to streamline Cloudflare zero-trust edge tunneling routes.
 - [ ] **Build FastAPI Authentication Endpoints**
   - Implement `POST /api/v1/login` to verify incoming SHA-256 password hashes.
   - Issue a cryptographically signed JSON Web Token (JWT) on success.
@@ -29,7 +30,6 @@ Migrate the administrative login interface from a client-side obfuscation patter
 
 ### Objective
 Design a spacious side pannel tabbed layout for the administrative control center.
-
 
 ### Tasks
 - [ ] **Build Global Settings Menu Module in Admin Center**
@@ -73,6 +73,5 @@ Extend API routes to allow post editing and layout corrections post-publication.
 
 - [ ] **Authentication Lock Out:** Try uploading a post payload using direct network scripts (curl or Postman) from an unauthenticated context. Verify that the server returns a strict `401 Unauthorized` message.
 - [ ] **Cookie Verification:** Verify via browser developer tools that the session token cookie is explicitly flagged as `HttpOnly` and `Secure`.
+- [ ] **Tunnel Routing Integrity:** Validate that requests hitting `localhost:8000` accurately serve the mock landing page, while structural panel assets and APIs isolate cleanly under `/whoami` without resource leakage or cross-origin breakdown.
 - [ ] **Asset Framing:** Upload a combination of vertical, horizontal, and square imagery using your crop canvas interface. Confirm that placeholder aspect-ratio sizes match, layout shifts are completely gone, and skeleton loader blocks track properly.
-
-```
