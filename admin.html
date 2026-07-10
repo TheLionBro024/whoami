@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
     <title>Blog Admin // whoami</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
@@ -76,6 +77,18 @@
         .thumb-item { width: 80px; height: 80px; border: 1px solid var(--border-light); position: relative; }
         .thumb-item img { width: 100%; height: 100%; object-fit: cover; }
         .thumb-remove { position: absolute; top: 0; right: 0; background: red; color: white; border: none; cursor: pointer; }
+
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+            #admin-app { flex-direction: column; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-light); padding: 15px; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 5px; }
+            .sidebar h2 { margin-bottom: 0; width: 100%; text-align: center; margin-bottom: 10px; }
+            .nav-tab { padding: 8px 10px; margin-bottom: 0; font-size: 12px; flex: 1; text-align: center; white-space: nowrap; }
+            .main-content { padding: 15px; }
+            .card { padding: 15px; }
+            table { display: block; overflow-x: auto; white-space: nowrap; width: 100%; }
+            .action-btns button { margin-right: 5px; margin-bottom: 5px; }
+        }
     </style>
 </head>
 <body>
@@ -89,7 +102,8 @@
         </button>
         <button id="bio-register-btn" style="background:none; border:none; color:var(--accent-green); cursor:pointer; font-family:var(--font-mono); margin-bottom: 20px; font-size:12px;">Register Device (WebAuthn)</button>
         <div style="margin-bottom:10px;">or</div>
-        <input type="password" id="auth-password" class="auth-input" placeholder="Password (admin123)">
+        <input type="text" id="auth-username" class="auth-input" placeholder="Username (admin)">
+        <input type="password" id="auth-password" class="auth-input" placeholder="Password">
         <button id="auth-submit" class="auth-submit-btn">Login</button>
         <div id="auth-error" style="color:var(--accent-red); margin-top:10px; font-size:12px;"></div>
     </div>
@@ -202,11 +216,7 @@
         });
     });
 
-    // HASH util for fallback auth
-    async function hashPassword(pw) {
-        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
-        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-    }
+
 
     // AUTH
     const authGate = document.getElementById('auth-gate');
@@ -248,19 +258,19 @@
     });
 
     document.getElementById('auth-submit').addEventListener('click', async () => {
+        const username = document.getElementById('auth-username').value;
         const pw = document.getElementById('auth-password').value;
-        const hashed = await hashPassword(pw);
         const resp = await fetch('/api/v1/login', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ password_hash: hashed })
+            body: JSON.stringify({ username: username, password: pw })
         });
         if(resp.ok) {
             authGate.classList.add('hidden');
             adminApp.style.display = 'flex';
             loadPosts();
         } else {
-            document.getElementById('auth-error').innerText = "Invalid password";
+            document.getElementById('auth-error').innerText = "Invalid username or password";
         }
     });
 
@@ -336,30 +346,40 @@
     // IMAGE CROPPER
     let cropper = null;
     let pendingFile = null;
+    let pendingFiles = [];
     const cropModal = document.getElementById('crop-modal');
     const cropImg = document.getElementById('crop-image');
 
-    document.getElementById('carousel-input').addEventListener('change', e => {
-        const file = e.target.files[0];
-        if(!file) return;
-        pendingFile = file;
+    function processNextCrop() {
+        if(pendingFiles.length === 0) return;
+        pendingFile = pendingFiles.shift();
         const reader = new FileReader();
         reader.onload = ev => {
             cropImg.src = ev.target.result;
             cropModal.style.display = 'flex';
             if(cropper) cropper.destroy();
             cropper = new Cropper(cropImg, {
-                aspectRatio: NaN, // free crop
+                aspectRatio: 4 / 3, // Enforce 4:3
                 viewMode: 1
             });
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(pendingFile);
+    }
+
+    document.getElementById('carousel-input').addEventListener('change', e => {
+        const files = Array.from(e.target.files);
+        if(files.length === 0) return;
+        pendingFiles = pendingFiles.concat(files);
+        if (cropModal.style.display !== 'flex') {
+            processNextCrop();
+        }
         e.target.value = '';
     });
 
     document.getElementById('crop-cancel').addEventListener('click', () => {
         cropModal.style.display = 'none';
         if(cropper) cropper.destroy();
+        pendingFiles = []; // clear the queue if cancelled
     });
 
     document.getElementById('crop-save').addEventListener('click', () => {
@@ -371,6 +391,10 @@
         renderThumbs();
         cropModal.style.display = 'none';
         cropper.destroy();
+        
+        if(pendingFiles.length > 0) {
+            processNextCrop();
+        }
     });
 
     document.getElementById('post-form').addEventListener('submit', async e => {

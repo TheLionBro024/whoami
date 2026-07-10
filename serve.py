@@ -133,8 +133,8 @@ NAV_HTML = """
     </nav>
 
     <div class="menu-overlay" id="mobile-menu">
-        <a href="/index.html" onclick="toggleMenu()">Home</a>
-        <a href="/blog.html" onclick="toggleMenu()">Blog</a>
+        <a href="https://op.evolvplatform.com/" onclick="toggleMenu()">Home</a>
+        <a href="/blog" onclick="toggleMenu()">Blog</a>
         <a href="https://www.instagram.com/thelionbro024/" target="_blank" onclick="toggleMenu()">Instagram</a>
         <a href="https://bere.al/thelionbro024/" target="_blank" onclick="toggleMenu()">BeReal</a>
         <a href="https://evolvplatform.com/" target="_blank" onclick="toggleMenu()">Evolv.Platform</a>
@@ -152,8 +152,8 @@ NAV_HTML_POST = """
     </nav>
 
     <div class="menu-overlay" id="mobile-menu">
-        <a href="../index.html" onclick="toggleMenu()">Home</a>
-        <a href="../blog.html" onclick="toggleMenu()">Blog</a>
+        <a href="https://op.evolvplatform.com/" onclick="toggleMenu()">Home</a>
+        <a href="/blog" onclick="toggleMenu()">Blog</a>
         <a href="https://www.instagram.com/thelionbro024/" target="_blank" onclick="toggleMenu()">Instagram</a>
         <a href="https://bere.al/thelionbro024/" target="_blank" onclick="toggleMenu()">BeReal</a>
         <a href="https://evolvplatform.com/" target="_blank" onclick="toggleMenu()">Evolv.Platform</a>
@@ -171,8 +171,8 @@ NAV_HTML_GALLERY = """
     </nav>
 
     <div class="menu-overlay" id="mobile-menu">
-        <a href="../index.html" onclick="toggleMenu()">Home</a>
-        <a href="../blog.html" onclick="toggleMenu()">Blog</a>
+        <a href="https://op.evolvplatform.com/" onclick="toggleMenu()">Home</a>
+        <a href="/blog" onclick="toggleMenu()">Blog</a>
         <a href="https://www.instagram.com/thelionbro024/" target="_blank" onclick="toggleMenu()">Instagram</a>
         <a href="https://bere.al/thelionbro024/" target="_blank" onclick="toggleMenu()">BeReal</a>
         <a href="https://evolvplatform.com/" target="_blank" onclick="toggleMenu()">Evolv.Platform</a>
@@ -190,6 +190,7 @@ BLOG_TEMPLATE = """<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
     <title>Blog // whoami</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
     <meta name="description" content="Adriel Loewen's personal blog — life, faith, engineering, and everything in between.">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -558,6 +559,7 @@ POST_TEMPLATE = """<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
     <title>{post_title} // Blog</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
     <meta name="description" content="{post_excerpt}">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -845,6 +847,7 @@ GALLERY_TEMPLATE = """<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
     <title>Gallery — {post_title} // Blog</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
 {shared_css}

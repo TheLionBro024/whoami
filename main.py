@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import jwt
 from dotenv import load_dotenv
+import bcrypt
 
 from webauthn import generate_registration_options, verify_registration_response, generate_authentication_options, verify_authentication_response
 from webauthn.helpers.structs import RegistrationCredential, AuthenticationCredential, AuthenticatorSelectionCriteria, UserVerificationRequirement
@@ -21,6 +22,7 @@ load_dotenv(override=True)
 
 SECRET_KEY = os.getenv("SECRET_KEY", "fallback_secret")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
 ADMIN_PASSWORD_HASH = os.getenv("ADMIN_PASSWORD_HASH", "")
 
 RP_ID = "localhost" # Adjust for Cloudflare tunnel if needed
@@ -59,13 +61,21 @@ def verify_admin_session(request: Request):
     return True
 
 class LoginRequest(BaseModel):
-    password_hash: str
+    username: str
+    password: str
 
 @app.post("/api/v1/login")
 def login(req: LoginRequest, response: Response):
-    # Verify the SHA-256 hash of the password
-    if req.password_hash != ADMIN_PASSWORD_HASH:
-        raise HTTPException(status_code=401, detail="Invalid password")
+    # Check username
+    if req.username != ADMIN_USERNAME:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+        
+    # Verify the bcrypt hash of the password
+    try:
+        if not bcrypt.checkpw(req.password.encode('utf-8'), ADMIN_PASSWORD_HASH.encode('utf-8')):
+            raise HTTPException(status_code=401, detail="Invalid username or password")
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
     
     access_token = create_access_token(data={"role": "admin"})
     response.set_cookie(
@@ -367,20 +377,44 @@ async def patch_likes(post_id: str, request: Request):
 # ROUTING
 # ---------------------------------------------------------------------------
 
+from fastapi.responses import JSONResponse
+
 @app.middleware("http")
-async def host_header_forwarding(request: Request, call_next):
+async def security_and_host_middleware(request: Request, call_next):
+    # Block access to sensitive files
+    path = request.url.path.lower()
+    if "/.git" in path or "/.env" in path:
+        return JSONResponse(status_code=403, content={"detail": "Forbidden"})
+
     # This middleware can handle Cloudflare tunnel forwarded host headers
     # e.g., X-Forwarded-Host if necessary
     response = await call_next(request)
     return response
 
+# Explicit Admin Route
+@app.get("/admin")
+def read_admin():
+    return FileResponse("admin.html")
+
+# Explicit Blog Route
+@app.get("/blog")
+def read_blog():
+    return FileResponse("blog.html")
+
 # Static mock site at root
 @app.get("/")
-def read_root():
-    return FileResponse("evolv_index.html")
+def read_root(request: Request):
+    # Cloudflare often passes the original domain in the X-Forwarded-Host header
+    raw_host = request.headers.get("x-forwarded-host") or request.headers.get("host") or ""
+    host = str(raw_host).lower()
+    if "op.evolvplatform.com" in host:
+        return FileResponse("personal_index.html")
+    return FileResponse("index.html")
 
-# The old endpoints, remapped to `/whoami`
-app.mount("/whoami", StaticFiles(directory=".", html=True), name="whoami")
+# Mount the entire directory to serve all assets, blog, admin, and generated posts.
+# `html=True` automatically lets you visit `/blog` and it will serve `blog.html` under the hood!
+app.mount("/", StaticFiles(directory=".", html=True), name="static")
 
-# Fallback for root files like favicon, etc
-# If you want to serve root assets from `whoami` directory, you can mount it, but we already mounted /whoami
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

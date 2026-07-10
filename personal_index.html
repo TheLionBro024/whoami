@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
+    <title>whoami</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <style>
+        :root {
+            --bg-color: #0b0f12;
+            --accent-green: #00ff66;
+            --text-main: #f0f3f6;
+            --text-muted: #95a5b2;
+            --border-light: rgba(255, 255, 255, 0.08);
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVIGATION & HAMBURGER MENU --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 24px 5%;
+            display: flex;
+            justify-content: flex-end;
+            z-index: 100;
+        }
+
+        .hamburger {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 101;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 30px;
+            height: 2px;
+            background-color: #ffffff;
+            transition: 0.3s ease;
+        }
+
+        .hamburger:hover span {
+            background-color: var(--accent-green);
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(11, 15, 18, 0.98);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 99;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .menu-overlay a {
+            font-size: 24px;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .menu-overlay a:hover {
+            color: var(--accent-green);
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+        }
+
+        .hero-content {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hero-left {
+            flex: 1;
+        }
+
+        .hero-right {
+            flex: 1;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 20px;
+        }
+
+        .profile-title {
+            font-size: 6vw;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: #ffffff;
+            line-height: 1;
+        }
+
+        .profile-title span {
+            color: var(--accent-green);
+        }
+
+        .quote {
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--text-main);
+            max-width: 400px;
+            line-height: 1.4;
+        }
+
+        .scroll-prompt {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .scroll-prompt span {
+            display: block;
+            margin-top: 8px;
+            color: var(--accent-green);
+            font-size: 16px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(5px);
+            }
+
+            60% {
+                transform: translateY(3px);
+            }
+        }
+
+        /* --- PLAIN TEXT STORY SECTION --- */
+        .wrapper {
+            max-width: 680px;
+            /* Wider for comfortable reading */
+            margin: 0 auto;
+            padding: 80px 20px 100px 20px;
+        }
+
+        .story-text {
+            font-size: 16px;
+            color: var(--text-main);
+            margin-bottom: 32px;
+            font-weight: 400;
+        }
+
+        .story-heading {
+            font-family: var(--font-mono);
+            font-size: 16px;
+            color: var(--accent-green);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+            margin-top: 50px;
+            font-weight: bold;
+        }
+
+        .blockquote {
+            border-left: 2px solid var(--accent-green);
+            padding: 10px 0 10px 24px;
+            margin: 40px 0;
+        }
+
+        .blockquote p {
+            font-style: italic;
+            color: #ffffff;
+            font-size: 18px;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .blockquote cite {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-style: normal;
+        }
+
+        .blockquote cite a {
+            color: inherit;
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(149, 165, 178, 0.4);
+            transition: color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .blockquote cite a:hover {
+            color: var(--accent-green);
+            border-bottom-color: var(--accent-green);
+        }
+
+        .story-text a {
+            color: var(--accent-green);
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(0, 255, 102, 0.4);
+            transition: border-color 0.2s ease;
+        }
+
+        .story-text a:hover {
+            border-bottom-color: var(--accent-green);
+        }
+
+        footer {
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-light);
+            padding-top: 40px;
+            margin-top: 60px;
+        }
+
+        /* --- MOBILE RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .hero-content {
+                flex-direction: column;
+                justify-content: center;
+                align-items: flex-start;
+                text-align: left;
+                gap: 40px;
+            }
+
+            .hero-right {
+                text-align: left;
+                align-items: flex-start;
+            }
+
+            .profile-title {
+                font-size: 48px;
+            }
+
+            .quote {
+                font-size: 20px;
+            }
+
+            .story-text {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="hamburger" onclick="toggleMenu()" id="menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <div class="menu-overlay" id="mobile-menu">
+        <a href="https://op.evolvplatform.com/blog" target="_blank" onclick="toggleMenu()">Blog</a>
+        <a href="https://www.instagram.com/thelionbro024/" target="_blank" onclick="toggleMenu()">Instagram</a>
+        <a href="https://bere.al/thelionbro024/" target="_blank" onclick="toggleMenu()">BeReal</a>
+        <a href="https://evolvplatform.com/" target="_blank" onclick="toggleMenu()">Evolv.Platform</a>
+        <a href="mailto:thelionbro024@gmail.com" onclick="toggleMenu()">Email</a>
+    </div>
+
+    <header class="hero">
+        <div class="hero-content">
+            <div class="hero-left">
+                <h1 class="profile-title">Adriel Loewen<span>.</span></h1>
+            </div>
+            <div class="hero-right">
+                <h2 class="quote">"Why fit in when you were born to stand out?"</h2>
+                <div class="scroll-prompt">
+                    get to know me better
+                    <span>↓</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="wrapper" id="about">
+
+        <div class="story-heading">Origin & Language</div>
+        <p class="story-text">
+            Hey, I'm Adriel. I am based out of J.E. Estigarribia, Paraguay, in a mennonite colony called Sommerfeld, a
+            place that has shaped my perspective in more ways than one. Growing up here means navigating different
+            worlds and cultures daily. Because of that, communication is a huge part of who I am. I actively switch
+            between English, Spanish, German, and Ploatdietsch, our Mennonite Dialect. Whether I am talking through a
+            technical engineering problem or just connecting with people in my community, those four languages form the
+            baseline of how I interact with the world.
+        </p>
+
+        <div class="story-heading">Roots & Foundation</div>
+        <p class="story-text">
+            My foundation is built entirely on my faith. I am deeply rooted into christian Faith and believe that not
+            only i am supposed to have the privilege to be saved by the Grace of God, and feel his love inside of me. I
+            believe that I am called to bring this message out to the masses. I have realized that we as humans only
+            have one life, me having the privilege to have been raised in a loving Christian Home, gives me the
+            confidence to say that this is my calling to bring this heavenly love to lives that don't have this
+            certainty of being saved, like Jesus says in <a href="https://www.bible.com/bible/111/MAT.28.19-20.NIV"
+                target="_blank" rel="noopener">Matthew 28:19-20</a>
+        </p>
+
+        <div class="blockquote">
+            <p>Go therefore and make disciples of all the nations, baptizing them in the name of the Father and the Son
+                and the Holy Spirit, teaching them to observe all that I commanded you; and remember, I am with you
+                always,
+                even to the end of the age.</p>
+            <cite><a href="https://www.bible.com/bible/111/MAT.28.19-20.NIV" target="_blank" rel="noopener">Matthew
+                    28:19-20</a></cite>
+        </div>
+
+        <p class="story-text">
+            This is why my prayer is that God gives me the strength and persistence to Listen to him and go wherever he
+            leads me. This may be that I become a CEO to provide financial support where needed or go and bring Bibles
+            to the ones that don't have the resources to get theirs. I don't want to be the one that decides. Jesus,
+            take the wheel. <br>
+            Here is another bible verse for you that helps me when times get tough.
+        </p>
+
+        <div class="blockquote">
+            <p>"When you pass through the waters, I will be with you; and through the rivers, they shall not overwhelm
+                you; when you walk through fire you shall not be burned, and the flame shall not consume you."</p>
+            <cite><a href="https://www.bible.com/bible/111/ISA.43.2.NIV" target="_blank" rel="noopener">Isaiah
+                    43:2</a></cite>
+        </div>
+
+        <div class="story-heading">Evolv.Platform & Engineering</div>
+        <p class="story-text">
+            When I am not in the office, I am operating under Evolv.Platform, my personal hub for bridging hardware and
+            visual storytelling. I am a hobby videographer obsessed with high-dynamic-range realization and color
+            grading. On the engineering side, I dream, design and hope to build, fine-tune custom carbon-fiber
+            multi-rotor drones. From ArduPilot telemetry to writing code and designing embedded systems, I love the
+            friction of making complex mechanical and software systems work together perfectly. It's a beautiful paradox
+            because there are times where i feel like the engineering and the creative side cancel each other out. But
+            in the end, I am learning to let the engineering guide my creativity and the creativity guide my
+            engineering.
+        </p>
+
+        <div class="story-heading">The Next Chapter</div>
+        <p class="story-text">
+            I believe that technical capability is empty if it isn't anchored to a greater purpose. That is why I am
+            currently preparing for my next major step: I will be heading to Norway to join a Discipleship Training
+            School (DTS) at the YWAM Borgen base. It is an opportunity to take everything I have learned locally, my
+            faith, my languages, and my engineering and apply it on a global scale. I hope to be a blessing to the
+            people that will meet. And I pray, hope and wish that I am a person that, if the people see me, they see the
+            loving almighty Creator through me. <br>
+            May God bless the person that reads this! In Jesus' Name, Amen!
+        </p>
+
+        <footer>
+            <div>Operated/Saved by Grace // © 2026</div>
+            <div>Yes, there was AI involved in the making of this website.</div>
+        </footer>
+    </main>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('active');
+
+            const lines = document.querySelectorAll('.hamburger span');
+            if (menu.classList.contains('active')) {
+                lines[0].style.transform = 'translateY(8px) rotate(45deg)';
+                lines[1].style.opacity = '0';
+                lines[2].style.transform = 'translateY(-8px) rotate(-45deg)';
+            } else {
+                lines[0].style.transform = 'none';
+                lines[1].style.opacity = '1';
+                lines[2].style.transform = 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>

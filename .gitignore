@@ -1,7 +1,8 @@
-# Environment Variables
+# Environment Variables — NEVER commit these
 .env
+.env.*
 
-# Python
+# Python cache
 __pycache__/
 *.py[cod]
 *$py.class
@@ -23,3 +24,15 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# Runtime-generated blog content (user uploads and generated posts)
+# These are large binary files that should not be in source control.
+# The server generates them at runtime from posts.json.
+blog_assets/avatar.jpg
+blog_assets/images/
+blog_assets/gallery/
+gallery/
+posts/*.html
+
+# Dev utilities — not needed in production
+generate_bcrypt.py

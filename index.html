@@ -3,423 +3,218 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
-    <title>whoami</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evolv.Platform</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0b0f12;
-            --accent-green: #00ff66;
-            --text-main: #f0f3f6;
-            --text-muted: #95a5b2;
-            --border-light: rgba(255, 255, 255, 0.08);
+            --bg-base: #080808;
+            --bg-surface: #121212;
+            --text-primary: #e0e0e0;
+            --text-secondary: #888888;
+            --neon-green: #00ff66;
+            --neon-glow: rgba(0, 255, 102, 0.4);
+
+            /* Typography Settings */
             --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Swiss 721', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --font-nice: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            scroll-behavior: smooth;
+            box-sizing: border-box;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.8;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
             overflow-x: hidden;
-        }
-
-        /* --- NAVIGATION & HAMBURGER MENU --- */
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            padding: 24px 5%;
-            display: flex;
-            justify-content: flex-end;
-            z-index: 100;
-        }
-
-        .hamburger {
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            z-index: 101;
-        }
-
-        .hamburger span {
-            display: block;
-            width: 30px;
-            height: 2px;
-            background-color: #ffffff;
-            transition: 0.3s ease;
-        }
-
-        .hamburger:hover span {
-            background-color: var(--accent-green);
-        }
-
-        .menu-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background-color: rgba(11, 15, 18, 0.98);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 30px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            z-index: 99;
-        }
-
-        .menu-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .menu-overlay a {
-            font-size: 24px;
-            color: #ffffff;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.2s ease;
-        }
-
-        .menu-overlay a:hover {
-            color: var(--accent-green);
-        }
-
-        /* --- HERO SECTION --- */
-        .hero {
-            position: relative;
-            height: 100vh;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            padding: 0 5%;
-        }
-
-        .hero-content {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .hero-left {
-            flex: 1;
-        }
-
-        .hero-right {
-            flex: 1;
-            text-align: right;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 20px;
-        }
-
-        .profile-title {
-            font-size: 6vw;
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            color: #ffffff;
-            line-height: 1;
-        }
-
-        .profile-title span {
-            color: var(--accent-green);
-        }
-
-        .quote {
-            font-size: 24px;
-            font-weight: 400;
-            color: var(--text-main);
-            max-width: 400px;
-            line-height: 1.4;
-        }
-
-        .scroll-prompt {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .scroll-prompt span {
-            display: block;
-            margin-top: 8px;
-            color: var(--accent-green);
-            font-size: 16px;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-
-            0%,
-            20%,
-            50%,
-            80%,
-            100% {
-                transform: translateY(0);
-            }
-
-            40% {
-                transform: translateY(5px);
-            }
-
-            60% {
-                transform: translateY(3px);
-            }
-        }
-
-        /* --- PLAIN TEXT STORY SECTION --- */
-        .wrapper {
-            max-width: 680px;
-            /* Wider for comfortable reading */
-            margin: 0 auto;
-            padding: 80px 20px 100px 20px;
-        }
-
-        .story-text {
-            font-size: 16px;
-            color: var(--text-main);
-            margin-bottom: 32px;
-            font-weight: 400;
-        }
-
-        .story-heading {
-            font-family: var(--font-mono);
-            font-size: 16px;
-            color: var(--accent-green);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 12px;
-            margin-top: 50px;
-            font-weight: bold;
-        }
-
-        .blockquote {
-            border-left: 2px solid var(--accent-green);
-            padding: 10px 0 10px 24px;
-            margin: 40px 0;
-        }
-
-        .blockquote p {
-            font-style: italic;
-            color: #ffffff;
-            font-size: 18px;
-            margin-bottom: 12px;
             line-height: 1.6;
         }
 
-        .blockquote cite {
+        /* Animated Dark Grid Background */
+        .grid-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: panGrid 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes panGrid {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(50px);
+            }
+        }
+
+        /* Subtle Vignette Overlay */
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, transparent 30%, var(--bg-base) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Main Content Wrapper */
+        main {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .title {
+            font-family: var(--font-nice);
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            letter-spacing: -2px;
+            color: #ffffff;
+        }
+
+        .neon-dot {
+            color: var(--neon-green);
             font-family: var(--font-mono);
-            font-size: 12px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            font-style: normal;
+            text-shadow: 0 0 10px var(--neon-glow), 0 0 20px var(--neon-glow);
+            animation: pulse 2s infinite alternate;
         }
 
-        .blockquote cite a {
-            color: inherit;
+        @keyframes pulse {
+            0% {
+                text-shadow: 0 0 10px var(--neon-glow), 0 0 20px var(--neon-glow);
+            }
+
+            100% {
+                text-shadow: 0 0 15px var(--neon-green), 0 0 30px var(--neon-green);
+            }
+        }
+
+        /* Visible Network/Subdomain Link */
+        .network-link {
+            position: absolute;
+            bottom: 40px;
+            font-family: var(--font-nice);
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
             text-decoration: none;
-            border-bottom: 1px dashed rgba(149, 165, 178, 0.4);
-            transition: color 0.2s ease, border-color 0.2s ease;
+            padding: 8px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            border-radius: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .blockquote cite a:hover {
-            color: var(--accent-green);
-            border-bottom-color: var(--accent-green);
+        .network-link:hover {
+            color: var(--neon-green);
+            border-color: var(--neon-green);
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.15);
+            transform: translateY(-2px);
         }
 
-        .story-text a {
-            color: var(--accent-green);
-            text-decoration: none;
-            border-bottom: 1px dashed rgba(0, 255, 102, 0.4);
-            transition: border-color 0.2s ease;
+        /* Description Section */
+        .about-section {
+            background-color: var(--bg-surface);
+            border-top: 1px solid rgba(0, 255, 102, 0.15);
+            padding: 6rem 2rem;
+            display: flex;
+            justify-content: center;
         }
 
-        .story-text a:hover {
-            border-bottom-color: var(--accent-green);
+        .about-content {
+            max-width: 800px;
+            text-align: left;
+            border-left: 3px solid var(--neon-green);
+            padding-left: 2rem;
+            background: linear-gradient(90deg, rgba(0, 255, 102, 0.03) 0%, transparent 100%);
         }
 
-        footer {
-            text-align: center;
+        .about-content p {
             font-family: var(--font-mono);
-            font-size: 11px;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border-light);
-            padding-top: 40px;
-            margin-top: 60px;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
         }
 
-        /* --- MOBILE RESPONSIVE --- */
-        @media (max-width: 768px) {
-            .hero-content {
-                flex-direction: column;
-                justify-content: center;
-                align-items: flex-start;
-                text-align: left;
-                gap: 40px;
-            }
+        .about-content p:last-child {
+            margin-bottom: 0;
+        }
 
-            .hero-right {
-                text-align: left;
-                align-items: flex-start;
-            }
+        .highlight {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
 
-            .profile-title {
-                font-size: 48px;
-            }
-
-            .quote {
-                font-size: 20px;
-            }
-
-            .story-text {
-                font-size: 15px;
-            }
+        .neon-text {
+            color: var(--neon-green);
         }
     </style>
 </head>
 
 <body>
 
-    <nav>
-        <div class="hamburger" onclick="toggleMenu()" id="menu-btn">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-    </nav>
+    <div class="grid-container"></div>
+    <div class="vignette"></div>
 
-    <div class="menu-overlay" id="mobile-menu">
-        <a href="blog.html" onclick="toggleMenu()">Blog</a>
-        <a href="https://www.instagram.com/thelionbro024/" target="_blank" onclick="toggleMenu()">Instagram</a>
-        <a href="https://bere.al/thelionbro024/" target="_blank" onclick="toggleMenu()">BeReal</a>
-        <a href="mailto:thelionbro024@gmail.com" onclick="toggleMenu()">Email</a>
-    </div>
+    <main>
+        <section class="hero">
+            <h1 class="title">Evolv<span class="neon-dot">.</span>Platform</h1>
 
-    <header class="hero">
-        <div class="hero-content">
-            <div class="hero-left">
-                <h1 class="profile-title">Adriel Loewen<span>.</span></h1>
+            <a href="https://op.evolvplatform.com" class="network-link" target="_blank">
+                View Operator Network →
+            </a>
+        </section>
+
+        <section class="about-section">
+            <div class="about-content">
+                <p>
+                    <span class="highlight">Evolv.Platform</span> is an engineering and media laboratory documenting the
+                    intersection of custom hardware builds and the creative process.
+                </p>
+                <p>
+                    From designing advanced <span class="neon-text">UAV frameworks</span> and programming embedded
+                    systems, to executing high-end videography and professional color grading. It is a space dedicated
+                    to functional design, artful utility, and building things from the ground up.
+                </p>
             </div>
-            <div class="hero-right">
-                <h2 class="quote">"Why fit in when you were born to stand out?"</h2>
-                <div class="scroll-prompt">
-                    get to know me better
-                    <span>↓</span>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="wrapper" id="about">
-
-        <div class="story-heading">Origin & Language</div>
-        <p class="story-text">
-            Hey, I'm Adriel. I am based out of J.E. Estigarribia, Paraguay, in a mennonite colony called Sommerfeld, a
-            place that has shaped my perspective in more ways than one. Growing up here means navigating different
-            worlds and cultures daily. Because of that, communication is a huge part of who I am. I actively switch
-            between English, Spanish, German, and Ploatdietsch, our Mennonite Dialect. Whether I am talking through a
-            technical engineering problem or just connecting with people in my community, those four languages form the
-            baseline of how I interact with the world.
-        </p>
-
-        <div class="story-heading">Roots & Foundation</div>
-        <p class="story-text">
-            My foundation is built entirely on my faith. I am deeply rooted into christian Faith and believe that not
-            only i am supposed to have the privilege to be saved by the Grace of God, and feel his love inside of me. I
-            believe that I am called to bring this message out to the masses. I have realized that we as humans only
-            have one life, me having the privilege to have been raised in a loving Christian Home, gives me the
-            confidence to say that this is my calling to bring this heavenly love to lives that don't have this
-            certainty of being saved, like Jesus says in <a href="https://www.bible.com/bible/111/MAT.28.19-20.NIV"
-                target="_blank" rel="noopener">Matthew 28:19-20</a>
-        </p>
-
-        <div class="blockquote">
-            <p>Go therefore and make disciples of all the nations, baptizing them in the name of the Father and the Son
-                and the Holy Spirit, teaching them to observe all that I commanded you; and remember, I am with you
-                always,
-                even to the end of the age.</p>
-            <cite><a href="https://www.bible.com/bible/111/MAT.28.19-20.NIV" target="_blank" rel="noopener">Matthew
-                    28:19-20</a></cite>
-        </div>
-
-        <p class="story-text">
-            This is why my prayer is that God gives me the strength and persistence to Listen to him and go wherever he
-            leads me. This may be that I become a CEO to provide financial support where needed or go and bring Bibles
-            to the ones that don't have the resources to get theirs. I don't want to be the one that decides. Jesus,
-            take the wheel. <br>
-            Here is another bible verse for you that helps me when times get tough.
-        </p>
-
-        <div class="blockquote">
-            <p>"When you pass through the waters, I will be with you; and through the rivers, they shall not overwhelm
-                you; when you walk through fire you shall not be burned, and the flame shall not consume you."</p>
-            <cite><a href="https://www.bible.com/bible/111/ISA.43.2.NIV" target="_blank" rel="noopener">Isaiah
-                    43:2</a></cite>
-        </div>
-
-        <div class="story-heading">Evolv.Platform & Engineering</div>
-        <p class="story-text">
-            When I am not in the office, I am operating under Evolv.Platform, my personal hub for bridging hardware and
-            visual storytelling. I am a hobby videographer obsessed with high-dynamic-range realization and color
-            grading. On the engineering side, I dream, design and hope to build, fine-tune custom carbon-fiber
-            multi-rotor drones. From ArduPilot telemetry to writing code and designing embedded systems, I love the
-            friction of making complex mechanical and software systems work together perfectly. It's a beautiful paradox
-            because there are times where i feel like the engineering and the creative side cancel each other out. But
-            in the end, I am learning to let the engineering guide my creativity and the creativity guide my
-            engineering.
-        </p>
-
-        <div class="story-heading">The Next Chapter</div>
-        <p class="story-text">
-            I believe that technical capability is empty if it isn't anchored to a greater purpose. That is why I am
-            currently preparing for my next major step: I will be heading to Norway to join a Discipleship Training
-            School (DTS) at the YWAM Borgen base. It is an opportunity to take everything I have learned locally, my
-            faith, my languages, and my engineering and apply it on a global scale. I hope to be a blessing to the
-            people that will meet. And I pray, hope and wish that I am a person that, if the people see me, they see the
-            loving almighty Creator through me. <br>
-            May God bless the person that reads this! In Jesus' Name, Amen!
-        </p>
-
-        <footer>
-            <div>Operated/Saved by Grace // © 2026</div>
-            <div>Yes, there was AI involved in the making of this website.</div>
-        </footer>
+        </section>
     </main>
 
     <script>
-        function toggleMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('active');
-
-            const lines = document.querySelectorAll('.hamburger span');
-            if (menu.classList.contains('active')) {
-                lines[0].style.transform = 'translateY(8px) rotate(45deg)';
-                lines[1].style.opacity = '0';
-                lines[2].style.transform = 'translateY(-8px) rotate(-45deg)';
-            } else {
-                lines[0].style.transform = 'none';
-                lines[1].style.opacity = '1';
-                lines[2].style.transform = 'none';
-            }
-        }
+        console.log("%c// SYSTEM ARCHITECT DETECTED: ADRIEL", "color: #00ff66; font-family: monospace; font-size: 14px; font-weight: bold;");
+        console.log("%cTo view personal logs and projects, route to: https://op.evolvplatform.com", "color: #888888; font-family: sans-serif; font-size: 12px;");
     </script>
+
 </body>
 
 </html>
