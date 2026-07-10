@@ -4,6 +4,7 @@ CHECK FOR ANY POSSIBLE SECURITY VULNERABILITIES.
 
 Reimplement biometric authentication for admin panel.
 Reimplement gallery. It got lost somewhere in development.
+Organize sturcture using folders.
 
 Make an .md that explains me how i can set up safe IoT with my domain.
 
