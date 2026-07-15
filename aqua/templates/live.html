@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Live Readings - Evolv.Aqua</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico?v=2">
+    <link rel="stylesheet" href="/static/style.css?v=1.4.2">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Extra styles specifically for the large digital readouts */
+        .readout-container {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .readout-panel {
+            flex: 1;
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 2rem;
+        }
+
+        .readout-value {
+            font-size: 5rem;
+            font-family: var(--font-mono);
+            font-weight: bold;
+            line-height: 1;
+            margin: 1rem 0 0.5rem 0;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .readout-unit {
+            font-size: 1.25rem;
+            font-family: var(--font-mono);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-brand">Evolv.Aqua</a>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-links" id="navLinks">
+            <a href="/info" class="btn btn-outline">Back</a>
+            <a href="/" class="btn btn-outline">Home</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="text-center" style="margin-bottom: 2rem;">
+            <h2 style="font-family: var(--font-mono); color: var(--accent-primary);">LIVE TELEMETRY</h2>
+            <p class="text-muted" id="lastUpdated">Waiting for sensor data...</p>
+        </div>
+
+        <div class="readout-container">
+            <!-- Oxygen Panel -->
+            <div class="glass-panel readout-panel">
+                <h3 class="text-muted" style="letter-spacing: 2px;">OXYGEN</h3>
+                <div id="oxyValue" class="readout-value" style="color: var(--accent-blue);">--.-</div>
+                <div class="text-muted readout-unit">mg/L</div>
+            </div>
+
+            <!-- Temperature Panel -->
+            <div class="glass-panel readout-panel">
+                <h3 class="text-muted" style="letter-spacing: 2px;">TEMPERATURE</h3>
+                <div id="tempValue" class="readout-value" style="color: var(--accent-primary);">--.-</div>
+                <div class="text-muted readout-unit">°C</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-refresh interval in milliseconds (5000ms = 5 seconds)
+        const REFRESH_RATE = 5000;
+
+        async function fetchLatestReadings() {
+            try {
+                const response = await fetch("/api/sensor_data");
+                const data = await response.json();
+
+                if (!data || data.length === 0) return;
+
+                // Safely find the absolute newest reading by comparing timestamps
+                // This guarantees the live view is accurate regardless of how the API sorts the list
+                const latest = data.reduce((prev, current) => {
+                    return (new Date(prev.timestamp) > new Date(current.timestamp)) ? prev : current;
+                });
+
+                // Update the numbers on the screen (formatting to 1 and 2 decimal places)
+                document.getElementById('tempValue').textContent = latest.temperature.toFixed(1);
+                document.getElementById('oxyValue').textContent = latest.oxygen.toFixed(2);
+
+                // Update the "Last Updated" timestamp text
+                const timeString = new Date(latest.timestamp).toLocaleTimeString();
+                document.getElementById('lastUpdated').textContent = `Last updated: ${timeString}`;
+
+            } catch (error) {
+                console.error("Error fetching live data:", error);
+                document.getElementById('lastUpdated').textContent = "Connection lost. Retrying...";
+            }
+        }
+
+        // Run immediately when the page loads
+        fetchLatestReadings();
+
+        // Set the loop to keep running in the background without refreshing the page
+        setInterval(fetchLatestReadings, REFRESH_RATE);
+
+        // Unified Hamburger Menu Elements
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        const lines = document.querySelectorAll('.hamburger span');
+        const navbar = document.querySelector('.navbar');
+
+        // Helper function to close the menu and reset the hamburger lines
+        function closeMenu() {
+            navLinks.classList.remove('open');
+            lines[0].style.transform = 'none';
+            lines[1].style.opacity = '1';
+            lines[2].style.transform = 'none';
+        }
+
+        // Toggle menu on hamburger click
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevents the click from immediately bubbling up to the document
+            const isOpen = navLinks.classList.toggle('open');
+
+            if (isOpen) {
+                lines[0].style.transform = 'translateY(8px) rotate(45deg)';
+                lines[1].style.opacity = '0';
+                lines[2].style.transform = 'translateY(-8px) rotate(-45deg)';
+            } else {
+                closeMenu();
+            }
+        });
+
+        // Close the menu if the user clicks anywhere outside the navbar (the greyed-out area)
+        document.addEventListener('click', (e) => {
+            const isMenuOpen = navLinks.classList.contains('open');
+            const clickedInsideNavbar = navbar.contains(e.target);
+
+            if (isMenuOpen && !clickedInsideNavbar) {
+                closeMenu();
+            }
+        });
+
+    </script>
+</body>
+
+</html>

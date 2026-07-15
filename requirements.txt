@@ -5,3 +5,9 @@ PyJWT
 passlib[bcrypt]
 webauthn
 python-multipart
+sqlalchemy
+aiosqlite
+bcrypt
+jinja2
+pandas
+openpyxl

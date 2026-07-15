@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
+    <title>Just Text Post // Blog</title>
+    <meta name="description" content="This is a text only post.">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+
+        :root {
+            --bg-color: #0b0f12;
+            --accent-green: #00ff66;
+            --accent-red: #ff3366;
+            --text-main: #f0f3f6;
+            --text-muted: #95a5b2;
+            --border-light: rgba(255, 255, 255, 0.08);
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVIGATION & HAMBURGER MENU --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 24px 5%;
+            display: flex;
+            justify-content: flex-end;
+            z-index: 100;
+        }
+
+        .hamburger {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 101;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 30px;
+            height: 2px;
+            background-color: #ffffff;
+            transition: 0.3s ease;
+        }
+
+        .hamburger:hover span {
+            background-color: var(--accent-green);
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(11, 15, 18, 0.98);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 99;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .menu-overlay a {
+            font-size: 24px;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .menu-overlay a:hover {
+            color: var(--accent-green);
+        }
+
+
+        /* --- POST VIEW --- */
+        .post-container {
+            max-width: 680px;
+            margin: 120px auto 100px auto;
+            padding: 0 20px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-mono);
+            color: var(--accent-green);
+            text-decoration: none;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 36px;
+            border-bottom: 1px dashed rgba(0, 255, 102, 0.3);
+            transition: border-color 0.2s ease;
+        }
+
+        .back-link:hover {
+            border-bottom-color: var(--accent-green);
+        }
+
+        .post-header-title {
+            font-size: 38px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+            line-height: 1.2;
+            margin-bottom: 14px;
+        }
+
+        .post-meta {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 36px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .post-meta span { color: var(--accent-green); }
+
+        /* --- POST CAROUSEL --- */
+        .post-carousel {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            background-color: #0b0f12;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            margin-bottom: 36px;
+            user-select: none;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+            max-height: 600px;
+        }
+
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(11,15,18,0.7);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #ffffff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s ease;
+            z-index: 2;
+            backdrop-filter: blur(4px);
+        }
+
+        .carousel-btn:hover {
+            background-color: rgba(0, 255, 102, 0.2);
+            border-color: var(--accent-green);
+        }
+
+        .carousel-btn.prev { left: 12px; }
+        .carousel-btn.next { right: 12px; }
+        .carousel-btn.hidden { display: none; }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 2;
+        }
+
+        .carousel-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.4);
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .carousel-dot.active {
+            background-color: #ffffff;
+            transform: scale(1.3);
+        }
+
+        .carousel-counter {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: #ffffff;
+            background-color: rgba(11,15,18,0.7);
+            padding: 3px 10px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* --- POST CONTENT --- */
+        .post-content {
+            font-size: 16px;
+            color: var(--text-main);
+            line-height: 1.85;
+        }
+
+        .post-content p {
+            margin-bottom: 24px;
+        }
+
+        .post-content a {
+            color: var(--accent-green);
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(0, 255, 102, 0.4);
+            transition: border-color 0.2s ease;
+        }
+
+        .post-content a:hover {
+            border-bottom-color: var(--accent-green);
+        }
+
+        /* --- GALLERY LINK --- */
+        .gallery-callout {
+            margin-top: 40px;
+            padding: 20px 24px;
+            border: 1px solid rgba(0, 255, 102, 0.2);
+            border-radius: 8px;
+            background-color: rgba(0, 255, 102, 0.03);
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .gallery-callout a {
+            color: var(--accent-green);
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(0, 255, 102, 0.4);
+            transition: border-color 0.2s ease;
+        }
+
+        .gallery-callout a:hover {
+            border-bottom-color: var(--accent-green);
+        }
+
+        footer {
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-light);
+            padding-top: 40px;
+            margin-top: 60px;
+        }
+
+        @media (max-width: 768px) {
+            .post-container { margin-top: 80px; }
+            .post-header-title { font-size: 28px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="hamburger" onclick="toggleMenu()" id="menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <div class="menu-overlay" id="mobile-menu">
+        <a href="../index.html" onclick="toggleMenu()">Home</a>
+        <a href="../blog.html" onclick="toggleMenu()">Blog</a>
+        <a href="https://www.instagram.com/thelionbro024/" target="_blank" onclick="toggleMenu()">Instagram</a>
+        <a href="https://bere.al/thelionbro024/" target="_blank" onclick="toggleMenu()">BeReal</a>
+        <a href="https://evolvplatform.com/" target="_blank" onclick="toggleMenu()">Evolv.Platform</a>
+        <a href="mailto:thelionbro024@gmail.com" onclick="toggleMenu()">Email</a>
+    </div>
+
+
+    <main class="post-container">
+        <a href="../blog.html" class="back-link">&#8592; Back to Blog</a>
+
+        <article>
+            <h1 class="post-header-title">Just Text Post</h1>
+            <div class="post-meta">
+                Posted <span>June 13, 2026 at 12:00 AM</span>
+            </div>
+
+            
+
+            <div class="post-content">
+                <p>This is a text only post.</p>
+            </div>
+        </article>
+
+        
+
+        <footer>
+            <div>Operated/Saved by Grace // &copy; 2026</div>
+        </footer>
+    </main>
+
+    <script>
+
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('active');
+            const lines = document.querySelectorAll('.hamburger span');
+            if (menu.classList.contains('active')) {
+                lines[0].style.transform = 'translateY(8px) rotate(45deg)';
+                lines[1].style.opacity = '0';
+                lines[2].style.transform = 'translateY(-8px) rotate(-45deg)';
+            } else {
+                lines[0].style.transform = 'none';
+                lines[1].style.opacity = '1';
+                lines[2].style.transform = 'none';
+            }
+        }
+
+
+        // Post carousel
+        (function() {
+            const carousel = document.querySelector('.post-carousel');
+            if (!carousel) return;
+            const track = carousel.querySelector('.carousel-track');
+            const slides = carousel.querySelectorAll('.carousel-slide');
+            const dots = carousel.querySelectorAll('.carousel-dot');
+            const prevBtn = carousel.querySelector('.carousel-btn.prev');
+            const nextBtn = carousel.querySelector('.carousel-btn.next');
+            const counter = carousel.querySelector('.carousel-counter');
+            if (!track || slides.length <= 1) return;
+
+            let current = 0;
+
+            function goTo(idx) {
+                current = Math.max(0, Math.min(idx, slides.length - 1));
+                track.style.transform = `translateX(-${current * 100}%)`;
+                dots.forEach((d, i) => d.classList.toggle('active', i === current));
+                if (counter) counter.textContent = `${current + 1}/${slides.length}`;
+                if (prevBtn) prevBtn.classList.toggle('hidden', current === 0);
+                if (nextBtn) nextBtn.classList.toggle('hidden', current === slides.length - 1);
+            }
+
+            if (prevBtn) prevBtn.addEventListener('click', () => goTo(current - 1));
+            if (nextBtn) nextBtn.addEventListener('click', () => goTo(current + 1));
+
+            let startX = 0;
+            track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive: true});
+            track.addEventListener('touchend', e => {
+                const diff = startX - e.changedTouches[0].clientX;
+                if (Math.abs(diff) > 40) goTo(diff > 0 ? current + 1 : current - 1);
+            }, {passive: true});
+
+            goTo(0);
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,7 @@
+- Make Graphs not as crowded, give an option for the range of the data displayed. And make them autoscroll to always show the most recent data if selected to do so.
+- Check the ESP32 code in /ESP32_Codebase and make it work with the database. I cant get updated data.
+- The main Dashboard should only show current levels in nice text.
+- the api needs authentification that not everybody can push data.
+- inlude a api pass key in the .env.aqua file, that is used in the api code for the authentification when the ESP32 sensor sends a packet. Make that file.
+- find out how i can get the date corrected in the data.
+- remove everything /command as it is obsolete and useless. It was used to debug the device.

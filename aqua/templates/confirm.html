@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Manage Users - Evolv.Aqua</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico?v=2">
+    <link rel="stylesheet" href="/static/style.css?v=1.4.2">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-brand">Evolv.Aqua</a>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-links" id="navLinks">
+            <span class="text-muted">Hello, {{ username }}</span>
+            <a href="/" class="btn btn-outline">Home</a>
+        </div>
+    </nav>
+
+    <div class="container text-center">
+        <div class="glass-panel" style="max-width: 600px; margin: 0 auto;">
+            <h2 style="font-family: var(--font-mono); color: var(--accent-primary);">UNCONFIRMED USERS</h2>
+
+            {% if users %}
+            {% for user in users %}
+            <div class="d-flex justify-content-between align-items-center mb-1"
+                style="background-color: rgba(0,0,0,0.2); padding: 1rem; border-radius: 4px; border: 1px solid var(--border-light);">
+                <div style="text-align: left;">
+                    <div style="font-family: var(--font-mono); color: var(--text-main);">{{ user.username }}</div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary"
+                        onclick="handleAction('{{ user.id }}', 'confirm_user')">Confirm</button>
+                    <button class="btn btn-danger"
+                        onclick="handleAction('{{ user.id }}', 'decline_user')">Decline</button>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="text-muted mt-2">No users pending confirmation.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Unified Hamburger Menu Elements
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        const lines = document.querySelectorAll('.hamburger span');
+        const navbar = document.querySelector('.navbar');
+
+        // Helper function to close the menu and reset the hamburger lines
+        function closeMenu() {
+            navLinks.classList.remove('open');
+            lines[0].style.transform = 'none';
+            lines[1].style.opacity = '1';
+            lines[2].style.transform = 'none';
+        }
+
+        // Toggle menu on hamburger click
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevents the click from immediately bubbling up to the document
+            const isOpen = navLinks.classList.toggle('open');
+
+            if (isOpen) {
+                lines[0].style.transform = 'translateY(8px) rotate(45deg)';
+                lines[1].style.opacity = '0';
+                lines[2].style.transform = 'translateY(-8px) rotate(-45deg)';
+            } else {
+                closeMenu();
+            }
+        });
+
+        // Close the menu if the user clicks anywhere outside the navbar (the greyed-out area)
+        document.addEventListener('click', (e) => {
+            const isMenuOpen = navLinks.classList.contains('open');
+            const clickedInsideNavbar = navbar.contains(e.target);
+
+            if (isMenuOpen && !clickedInsideNavbar) {
+                closeMenu();
+            }
+        });
+    </script>
+</body>
+
+</html>

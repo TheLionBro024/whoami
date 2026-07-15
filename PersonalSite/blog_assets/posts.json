@@ -1,0 +1,14 @@
+[
+    {
+        "slug": "hi",
+        "title": "Hi",
+        "content": "Hello",
+        "image_paths": [
+            "blog_assets/images/1784050310_img1026.webp"
+        ],
+        "gallery_images": [],
+        "likes": 0,
+        "created_at": "2026-07-14T14:31:50.503972",
+        "updated_at": "2026-07-14T14:31:50.503972"
+    }
+]

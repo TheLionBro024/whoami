@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Dashboard - Evolv.Aqua</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico?v=2">
+    <link rel="stylesheet" href="/static/style.css?v=1.4.2">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Cyberpunk Warning Styles for the Nuke Action -->
+    <style>
+        .btn-nuke {
+            background: repeating-linear-gradient(45deg,
+                    rgba(255, 51, 102, 0.15),
+                    rgba(255, 51, 102, 0.15) 10px,
+                    rgba(18, 24, 28, 0.8) 10px,
+                    rgba(18, 24, 28, 0.8) 20px) !important;
+            color: var(--accent-secondary) !important;
+            border: 2px solid var(--accent-secondary) !important;
+            text-shadow: 0 0 5px rgba(255, 51, 102, 0.5);
+            box-shadow: 0 0 10px rgba(255, 51, 102, 0.2);
+            font-weight: 700;
+            margin-top: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-nuke:hover {
+            background: repeating-linear-gradient(45deg,
+                    rgba(255, 51, 102, 0.25),
+                    rgba(255, 51, 102, 0.25) 10px,
+                    rgba(18, 24, 28, 0.9) 10px,
+                    rgba(18, 24, 28, 0.9) 20px) !important;
+            box-shadow: 0 0 15px rgba(255, 51, 102, 0.5) !important;
+            transform: scale(1.01);
+        }
+
+        .btn-nuke.confirming {
+            background: var(--accent-secondary) !important;
+            color: #ffffff !important;
+            text-shadow: none;
+            animation: pulse-danger 0.8s infinite alternate;
+        }
+
+        @keyframes pulse-danger {
+            from {
+                box-shadow: 0 0 8px rgba(255, 51, 102, 0.6);
+            }
+
+            to {
+                box-shadow: 0 0 25px rgba(255, 51, 102, 1);
+            }
+        }
+    </style>
+
+</head>
+
+<body class="dashboard-kiosk">
+    <nav class="navbar">
+        <a href="/" class="nav-brand">Evolv.Aqua</a>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-links" id="navLinks">
+            <span class="text-muted desktop-only">Hello, {{ username }}</span>
+            <a href="/" class="btn btn-outline">Home</a>
+            <button id="openExportBtn" class="btn btn-outline">Export</button>
+            {% if is_admin %}
+            <button id="openClearBtn" class="btn btn-danger">Clear DB</button>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="glass-panel text-center">
+            <div class="h2-title">
+                ENVIRONMENTAL DATA
+            </div>
+            <div class="desktop-only">
+                <p class="text-muted mb-2">Real-time telemetry monitoring</p>
+
+                <div style="margin-bottom: 20px;">
+                    <label for="timeRangeSelect"
+                        style="color: var(--text-muted); font-family: var(--font-mono); margin-right: 10px;">Time
+                        Range:</label>
+                    <select id="timeRangeSelect" class="form-control"
+                        style="width: auto; display: inline-block; padding: 5px 10px; font-family: var(--font-mono);">
+                        <option value="hour">Last 1 Hour</option>
+                        <option value="day" selected>Last 24 Hours</option>
+                        <option value="week">Last Week (Daily Avg)</option>
+                        <option value="month">Last Month (Daily Avg)</option>
+                    </select>
+                </div>
+            </div>
+
+            <a href="/live" class="btn btn-primary mt-1">Go to Live Data</a>
+
+            <div class="charts-wrapper">
+                <div class="chart-container">
+                    <canvas id="oxygenChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="temperatureChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeExportBtn">&times;</button>
+            <h3 style="color: var(--accent-primary); margin-bottom: 1rem; font-family: var(--font-mono);">EXPORT DATA
+            </h3>
+            <form id="exportForm">
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="datetime-local" id="exportStart" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="datetime-local" id="exportEnd" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Resolution</label>
+                    <select id="exportResolution" class="form-control" required>
+                        <option value="raw">Raw Data</option>
+                        <option value="hourly">Hourly Averages</option>
+                        <option value="daily_morning_evening">Daily Averages (Morning/Evening)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Download Excel</button>
+            </form>
+        </div>
+    </div>
+
+    {% if is_admin %}
+    <!-- Clear DB Modal -->
+    <div class="modal-overlay" id="clearModal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeClearBtn">&times;</button>
+            <h3 style="color: var(--accent-secondary); margin-bottom: 1rem; font-family: var(--font-mono);">CLEAR
+                DATABASE</h3>
+            <p class="text-muted mb-1" style="font-size: 0.85rem;">Warning: This will permanently delete sensor data in
+                the specified range.</p>
+            <div id="clearMsg" class="mb-1" style="font-size: 0.85rem; display: none;"></div>
+
+            <form id="clearForm">
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="datetime-local" id="clearStart" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="datetime-local" id="clearEnd" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-danger" style="width: 100%;">Delete Data</button>
+            </form>
+
+            <!-- Visual Separator -->
+            <div
+                style="border-top: 1px solid var(--border-light); margin: 1.5rem 0 1rem 0; position: relative; text-align: center;">
+                <span
+                    style="background: var(--panel-bg); padding: 0 10px; color: var(--text-muted); font-size: 0.72rem; font-family: var(--font-mono); position: absolute; top: -10px; left: 50%; transform: translateX(-50%); text-transform: uppercase; letter-spacing: 0.05em;">Danger
+                    Zone</span>
+            </div>
+
+            <!-- Absolute Database Nuke Button -->
+            <button type="button" id="nukeBtn" class="btn btn-nuke">--- NUKE ALL DATA ---</button>
+        </div>
+    </div>
+    {% endif %}
+
+    <script>
+        // Charts Initialization
+        const tempCtx = document.getElementById('temperatureChart').getContext('2d');
+        const oxygenCtx = document.getElementById('oxygenChart').getContext('2d');
+        const MAX_POINTS = 50;
+
+        // Set dynamic font sizes depending on screen size
+        const isMobile = window.innerWidth <= 768;
+        const labelFontSize = isMobile ? 12 : 15; // Legend/Dataset name size
+        const tickFontSize = isMobile ? 10 : 13;  // Axis numbers size
+
+        // Custom plugin to draw a vertical line on hover/touch
+        const verticalLinePlugin = {
+            id: 'verticalLine',
+            afterDatasetsDraw(chart) {
+                const activeElements = chart.getActiveElements();
+                if (activeElements.length > 0) {
+                    const activePoint = activeElements[0];
+                    const ctx = chart.ctx;
+                    const x = activePoint.element.x;
+                    const topY = chart.scales.y.top;
+                    const bottomY = chart.scales.y.bottom;
+
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.moveTo(x, topY);
+                    ctx.lineTo(x, bottomY);
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'; // Subtle semi-transparent line
+                    ctx.setLineDash([4, 4]);                      // Dashed line style
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
+        };
+
+        // Safe hardcoded values—no CSS variables, zero crash risk
+        Chart.defaults.color = '#95a5b2';
+        Chart.defaults.font.family = '"JetBrains Mono", monospace';
+        // Note: If you prefer a sans-serif look for the charts, use this instead:
+        // Chart.defaults.font.family = 'system-ui, -apple-system, sans-serif';
+
+        function chartOptions() {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#f0f3f6',
+                            boxWidth: 12,
+                            font: {
+                                size: labelFontSize
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(11, 15, 18, 0.9)',
+                        titleColor: '#f0f3f6',
+                        bodyColor: '#95a5b2',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 10
+                    }
+                },
+
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        },
+                        ticks: {
+                            display: false,
+                            /*display: isMobile ? false : true,*/
+                            maxTicksLimit: isMobile ? 4 : 6, // Prevents crowding by skipping labels
+                            maxRotation: 0,                  // Forces labels to stay perfectly flat
+                            minRotation: 0,                  // Forces labels to stay perfectly flat
+                            font: {
+                                size: tickFontSize
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        },
+                        ticks: {
+                            font: {
+                                size: tickFontSize
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        const temperatureChart = new Chart(tempCtx, {
+            type: 'line',
+            data: {
+                labels: [], datasets: [{
+                    label: 'Temperature (°C)',
+                    data: [],
+                    borderColor: '#00ff66',
+                    backgroundColor: 'rgba(0, 255, 102, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#00ff66',
+                    pointBorderColor: '#12181c',
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: chartOptions(),
+            plugins: [verticalLinePlugin]
+        });
+
+        const oxygenChart = new Chart(oxygenCtx, {
+            type: 'line',
+            data: {
+                labels: [], datasets: [{
+                    label: 'Oxygen (mg/L)',
+                    data: [],
+                    borderColor: '#58a6ff',
+                    backgroundColor: 'rgba(88, 166, 255, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#58a6ff',
+                    pointBorderColor: '#12181c',
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: chartOptions(),
+            plugins: [verticalLinePlugin]
+        });
+
+
+        // If you resize the screen, you have to tell Chart.js to re-render
+        window.addEventListener('resize', () => {
+            const isMobileNow = window.innerWidth <= 768;
+
+            // Update your chart's option values manually, then:
+            temperatureChart.options.plugins.legend.labels.font.size = isMobileNow ? 12 : 15;
+            temperatureChart.update();
+
+            oxygenChart.options.plugins.legend.labels.font.size = isMobileNow ? 12 : 15;
+            oxygenChart.update();
+        });
+
+
+        async function updateCharts() {
+            try {
+                const timeRange = document.getElementById("timeRangeSelect").value;
+                const response = await fetch(`/api/sensor_data?time_range=${timeRange}`);
+                const data = await response.json();
+
+                // 1. Only exit if response is literally missing
+                if (!data) return;
+
+                let processedData = [];
+
+                if (data.length > 0) {
+                    // Auto-detect if the API data is sorted newest-first (descending)
+                    const firstTime = new Date(data[0].timestamp);
+                    const lastTime = new Date(data[data.length - 1].timestamp);
+                    const isDescending = firstTime > lastTime;
+
+                    if (isDescending) {
+                        processedData = data.slice(0, MAX_POINTS).reverse();
+                    } else {
+                        processedData = data.slice(-MAX_POINTS);
+                    }
+                }
+
+                // 2. Map the data (will evaluate to empty arrays if database is empty)
+                const labels = processedData.map(d => d.timestamp);
+                const temps = processedData.map(d => d.temperature);
+                const oxy = processedData.map(d => d.oxygen);
+
+                // 3. Update the Temperature Chart
+                temperatureChart.data.labels = labels;
+                temperatureChart.data.datasets[0].data = temps;
+                temperatureChart.update('none'); // 'none' prevents jarring update animations
+
+                // 4. Update the Oxygen Chart
+                oxygenChart.data.labels = labels;
+                oxygenChart.data.datasets[0].data = oxy;
+                oxygenChart.update('none');
+
+            } catch (error) {
+                console.error("Error fetching sensor data:", error);
+            }
+        }
+
+        updateCharts();
+
+        // Auto-refresh data every 5 seconds
+        setInterval(updateCharts, 5000);
+
+        // Fetch immediately when range changes
+        document.getElementById("timeRangeSelect").addEventListener("change", updateCharts);
+
+        // Modals Logic
+        const exportModal = document.getElementById('exportModal');
+        document.getElementById('openExportBtn').addEventListener('click', () => exportModal.classList.add('active'));
+        document.getElementById('closeExportBtn').addEventListener('click', () => exportModal.classList.remove('active'));
+
+        document.getElementById('exportForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const start = document.getElementById('exportStart').value;
+            const end = document.getElementById('exportEnd').value;
+            const res = document.getElementById('exportResolution').value;
+
+            const startIso = new Date(start).toISOString();
+            const endIso = new Date(end).toISOString();
+
+            window.location.href = `/api/export?start_time=${startIso}&end_time=${endIso}&resolution=${res}`;
+            exportModal.classList.remove('active');
+        });
+
+        {% if is_admin %}
+        const clearModal = document.getElementById('clearModal');
+        const clearStart = document.getElementById('clearStart');
+        const clearEnd = document.getElementById('clearEnd');
+        const clearForm = document.getElementById('clearForm');
+
+        // Nuke Button references & tracking states
+        const nukeBtn = document.getElementById('nukeBtn');
+        let nukeConfirmState = false;
+        let nukeTimeout;
+
+        document.getElementById('openClearBtn').addEventListener('click', () => clearModal.classList.add('active'));
+        document.getElementById('closeClearBtn').addEventListener('click', () => {
+            clearModal.classList.remove('active');
+            resetNukeButton();
+        });
+
+        // Function to safely reset the Nuke button appearance
+        function resetNukeButton() {
+            nukeConfirmState = false;
+            nukeBtn.textContent = '--- NUKE ALL DATA ---';
+            nukeBtn.classList.remove('confirming');
+            clearTimeout(nukeTimeout);
+        }
+
+        // Two-stage Nuke validation controller
+        nukeBtn.addEventListener('click', () => {
+            if (!nukeConfirmState) {
+                // First step: Arm the weapon system
+                nukeConfirmState = true;
+                nukeBtn.textContent = '!!! CONFIRM WIPE? (CLICK AGAIN) !!!';
+                nukeBtn.classList.add('confirming');
+
+                // Automatic system cool-down if user backs out (4 seconds)
+                nukeTimeout = setTimeout(() => {
+                    resetNukeButton();
+                }, 4000);
+            } else {
+                // Second step: Trigger payload
+                clearTimeout(nukeTimeout);
+
+                // Populate bounds with full Unix Epoch bounds to force a total API wipe
+                clearStart.value = '1970-01-01T00:00';
+                clearEnd.value = '2100-01-01T00:00';
+
+                resetNukeButton();
+
+                // Dispatch automated form submission to existing backend routes
+                clearForm.requestSubmit();
+            }
+        });
+
+        clearForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const start = clearStart.value;
+            const end = clearEnd.value;
+            const msg = document.getElementById('clearMsg');
+
+            const startIso = new Date(start).toISOString();
+            const endIso = new Date(end).toISOString();
+
+            try {
+                const res = await fetch('/api/clear_db', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ start_time: startIso, end_time: endIso })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    msg.textContent = data.message;
+                    msg.style.color = 'var(--accent-primary)';
+                    msg.style.display = 'block';
+                    setTimeout(() => {
+                        clearModal.classList.remove('active');
+                        msg.style.display = 'none';
+                    }, 2000);
+                } else {
+                    msg.textContent = data.detail || 'Failed to clear';
+                    msg.style.color = 'var(--accent-secondary)';
+                    msg.style.display = 'block';
+                }
+            } catch (err) {
+                msg.textContent = 'Network error';
+                msg.style.color = 'var(--accent-secondary)';
+                msg.style.display = 'block';
+            }
+        });
+        {% endif %}
+
+        // Unified Hamburger Menu Elements
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        const lines = document.querySelectorAll('.hamburger span');
+        const navbar = document.querySelector('.navbar');
+
+        // Helper function to close the menu and reset the hamburger lines
+        function closeMenu() {
+            navLinks.classList.remove('open');
+            lines[0].style.transform = 'none';
+            lines[1].style.opacity = '1';
+            lines[2].style.transform = 'none';
+        }
+
+        // Toggle menu on hamburger click
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevents the click from immediately bubbling up to the document
+            const isOpen = navLinks.classList.toggle('open');
+
+            if (isOpen) {
+                lines[0].style.transform = 'translateY(8px) rotate(45deg)';
+                lines[1].style.opacity = '0';
+                lines[2].style.transform = 'translateY(-8px) rotate(-45deg)';
+            } else {
+                closeMenu();
+            }
+        });
+
+        // Close the menu if the user clicks anywhere outside the navbar (the greyed-out area)
+        document.addEventListener('click', (e) => {
+            const isMenuOpen = navLinks.classList.contains('open');
+            const clickedInsideNavbar = navbar.contains(e.target);
+
+            if (isMenuOpen && !clickedInsideNavbar) {
+                closeMenu();
+            }
+        });
+
+    </script>
+</body>
+
+</html>

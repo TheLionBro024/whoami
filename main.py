@@ -1,4 +1,9 @@
 import os
+
+# Change working directory to PersonalSite so all relative paths work
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+os.chdir(os.path.join(BASE_DIR, "PersonalSite"))
+
 import json
 import base64
 from datetime import datetime, timedelta
