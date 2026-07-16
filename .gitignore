@@ -36,3 +36,20 @@ posts/*.html
 
 # Dev utilities — not needed in production
 generate_bcrypt.py
+
+# Others
+*.db
+*.sqlite3
+
+# Virtual environments
+venv/
+.venv/
+
+# Sensitive data / Security insights
+*.csv
+Cloudflare_SecurityInsights.csv
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store

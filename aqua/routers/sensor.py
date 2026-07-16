@@ -1,3 +1,4 @@
+#aqua.evolv
 import os
 from fastapi import APIRouter, Depends, HTTPException, Request, Header
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,8 +9,11 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+from aqua.routers.settings import load_settings
 
-load_dotenv(dotenv_path=".env.aqua")
+# Load API key from aqua/.env.aqua
+_AQUA_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(dotenv_path=os.path.join(_AQUA_DIR, ".env.aqua"))
 AQUA_API_KEY = os.getenv("AQUA_API_KEY", "Evolv.IoTBerglund2026")
 
 router = APIRouter(prefix="/api/sensor_data", tags=["sensor"])
@@ -99,4 +103,10 @@ async def add_sensor_data(
     db.add(new_data)
     await db.commit()
     
-    return {"status": "success", "message": "Sensor data added successfully"}
+    # Return debug_mode from settings so the ESP32 can update its state immediately
+    settings = load_settings()
+    return {
+        "status": "success",
+        "message": "Sensor data added successfully",
+        "debug_mode": settings.get("debug_mode", False)
+    }

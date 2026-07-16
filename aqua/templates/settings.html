@@ -266,8 +266,8 @@
                     <div class="settings-nav">
                         <button type="button" class="settings-tab active" data-target="general">General</button>
                         <button type="button" class="settings-tab" data-target="account">Account</button>
-                        <button type="button" class="settings-tab" data-target="calibration">Calibration</button>
-                        <button type="button" class="settings-tab" data-target="alerts">Alerts</button>
+                        <button type="button" class="settings-tab" data-target="sensor_adjustments">Sensor
+                            Adjustments</button>
                     </div>
 
                     <!-- Right Settings Panels -->
@@ -276,23 +276,17 @@
                         <!-- PANEL 1: GENERAL -->
                         <div class="settings-panel active" id="panel-general">
                             <div class="settings-group">
-                                <div class="settings-group-title">Display Settings</div>
+                                <div class="settings-group-title">General Settings</div>
 
                                 <div class="form-group">
-                                    <label>Telemetry Update Interval (seconds)</label>
-                                    <input type="number" name="refresh_interval" class="form-control" min="1" max="300"
-                                        required>
-                                </div>
-
-                                <div class="switch-control">
-                                    <div class="switch-label">
-                                        <span>Dark Theme Overlay</span>
-                                        <span class="switch-desc">Apply high contrast UI filter to screen</span>
-                                    </div>
-                                    <label class="switch">
-                                        <input type="checkbox" name="dark_mode_overlay">
-                                        <span class="slider"></span>
-                                    </label>
+                                    <label>Select Language</label>
+                                    <select name="language" class="form-control" required>
+                                        <option value="en">English</option>
+                                        <option value="es">Español</option>
+                                        <option value="de">Deutsch</option>
+                                        <option value="fr">Français</option>
+                                        <option value="pt">Português</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -300,7 +294,7 @@
                         <!-- PANEL 2: ACCOUNT -->
                         <div class="settings-panel" id="panel-account">
                             <div class="settings-group">
-                                <div class="settings-group-title">Account Settings</div>
+                                <div class="settings-group-title">Danger Zone</div>
 
                                 <div class="form-group">
                                     <a href="#" id="logoutBtn" class="btn btn-danger">Logout</a>
@@ -309,50 +303,33 @@
                             </div>
                         </div>
 
-                        <!-- PANEL 2: CALIBRATION -->
-                        <div class="settings-panel" id="panel-calibration">
+                        <!-- PANEL 3: SENSOR ADJUSTMENTS -->
+                        <div class="settings-panel" id="panel-sensor_adjustments">
+
                             <div class="settings-group">
-                                <div class="settings-group-title">RS485 DO Sensor Calibration</div>
-
-                                <div class="form-group">
-                                    <label>Calibration Slope Factor (m)</label>
-                                    <input type="number" name="calibration_slope" class="form-control" step="0.001"
-                                        required>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Calibration Offset (b)</label>
-                                    <input type="number" name="calibration_offset" class="form-control" step="0.01"
-                                        required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- PANEL 3: ALERTS -->
-                        <div class="settings-panel" id="panel-alerts">
-                            <div class="settings-group">
-                                <div class="settings-group-title">Critical Thresholds</div>
-
-                                <div class="form-group">
-                                    <label>Low Dissolved Oxygen Alert (mg/L)</label>
-                                    <input type="number" name="low_do_threshold" class="form-control" step="0.1"
-                                        required>
-                                </div>
+                                <div class="settings-group-title">ESP32 Remote Debug</div>
 
                                 <div class="switch-control">
                                     <div class="switch-label">
-                                        <span>Email Alarm Notifications</span>
-                                        <span class="switch-desc">Get critical alerts routed directly to admin
-                                            contact</span>
+                                        <span>Remote Debug Mode</span>
+                                        <span class="switch-desc">Activates verbose diagnostics on the ESP32 OLED and
+                                            Serial output. Delivers raw Modbus register values, Wi-Fi RSSI, and free
+                                            heap RAM on each sensor poll cycle. Takes effect on the next upload
+                                            cycle (~10s).</span>
                                     </div>
                                     <label class="switch">
-                                        <input type="checkbox" name="email_alerts_enabled">
+                                        <input type="checkbox" id="debugModeToggle" name="debug_mode">
                                         <span class="slider"></span>
                                     </label>
                                 </div>
+
+                                <div id="debugStatusBadge"
+                                    style="display:none; margin-top: 0.5rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-primary);">
+                                    -- Debug mode is currently <strong id="debugStateText"></strong> on the node. Save
+                                    to apply changes.
+                                </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
@@ -419,6 +396,15 @@
                             }
                         }
                     });
+
+                    // Show the debug state badge if debug_mode is present in response
+                    if ('debug_mode' in settings) {
+                        const badge = document.getElementById('debugStatusBadge');
+                        const stateText = document.getElementById('debugStateText');
+                        stateText.textContent = settings.debug_mode ? 'ACTIVE' : 'INACTIVE';
+                        stateText.style.color = settings.debug_mode ? 'var(--accent-primary)' : 'var(--text-muted)';
+                        badge.style.display = 'block';
+                    }
                 }
             } catch (err) {
                 console.error("Failed to fetch settings:", err);
@@ -472,6 +458,7 @@
             const fallback = {
                 refresh_interval: 5,
                 dark_mode_overlay: true,
+                debug_mode: false,
                 calibration_slope: 1.024,
                 calibration_offset: -0.05,
                 low_do_threshold: 4.5,

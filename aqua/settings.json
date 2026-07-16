@@ -1,0 +1,9 @@
+{
+  "refresh_interval": 5,
+  "dark_mode_overlay": false,
+  "debug_mode": false,
+  "calibration_slope": 1,
+  "calibration_offset": 0,
+  "low_do_threshold": 4.5,
+  "email_alerts_enabled": false
+}

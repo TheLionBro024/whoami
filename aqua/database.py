@@ -2,7 +2,7 @@ import os
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # aqua/
 db_path = os.path.join(BASE_DIR, "aqua.db")
 DATABASE_URL = f"sqlite+aiosqlite:///{db_path}"
 

@@ -1,3 +1,4 @@
+#aqua.evolv
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -6,6 +7,7 @@ from sqlalchemy import select
 from aqua.database import get_db
 from aqua.models import User, SensorData
 from aqua.security import get_current_user_optional, get_current_user, get_admin_user
+from datetime import timedelta
 
 router = APIRouter(tags=["pages"])
 
@@ -36,11 +38,14 @@ async def register_page(request: Request, user: User = Depends(get_current_user_
 @router.get("/info", response_class=HTMLResponse)
 async def info_page(request: Request, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(SensorData).order_by(SensorData.timestamp.desc()).limit(20))
-    data = result.scalars().all()
+    raw_data = result.scalars().all()
+    # DB stores UTC; convert to UTC-3 (local time) before rendering
+    for row in raw_data:
+        row.timestamp = row.timestamp - timedelta(hours=3)
     return templates.TemplateResponse(
         request=request,
         name="info.html", 
-        context={"request": request, "username": user.username, "is_admin": user.is_admin, "sensor_data": data}
+        context={"request": request, "username": user.username, "is_admin": user.is_admin, "sensor_data": raw_data}
     )
 
 @router.get("/confirm", response_class=HTMLResponse)

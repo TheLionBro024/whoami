@@ -1,14 +1,13 @@
-import http.server
-import socketserver
-import socket
+#op.evolv â€” Blog engine: HTML generation, post CRUD helpers, image management.
+# The old standalone HTTP server has been removed; use FastAPI via op/app.py instead.
 import json
 import os
 import re
-import urllib.parse
 from datetime import datetime
 import base64
 
-PORT = 8000
+# Absolute path to the op/ directory â€” used for all file I/O
+_OP_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ---------------------------------------------------------------------------
 # SHARED STYLE BLOCK (injected into every page)
@@ -190,7 +189,7 @@ BLOG_TEMPLATE = """<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
     <title>Blog // whoami</title>
-    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/static/favicon.png">
     <meta name="description" content="Adriel Loewen's personal blog — life, faith, engineering, and everything in between.">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -559,7 +558,7 @@ POST_TEMPLATE = """<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
     <title>{post_title} // Blog</title>
-    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="icon" type="image/png" href="/static/favicon.png">
     <meta name="description" content="{post_excerpt}">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -846,8 +845,8 @@ GALLERY_TEMPLATE = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
-    <title>Gallery — {post_title} // Blog</title>
-    <link rel="icon" type="image/png" href="/favicon.png">
+    <title>Gallery â€” {post_title} // Blog</title>
+    <link rel="icon" type="image/png" href="/static/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
 {shared_css}
@@ -1128,19 +1127,21 @@ def generate_unique_slug(title, posts):
 
 
 def init_folders():
-    os.makedirs('blog_assets/images', exist_ok=True)
-    os.makedirs('blog_assets/gallery', exist_ok=True)
-    os.makedirs('posts', exist_ok=True)
-    os.makedirs('gallery', exist_ok=True)
-    if not os.path.exists('blog_assets/posts.json'):
-        with open('blog_assets/posts.json', 'w', encoding='utf-8') as f:
+    os.makedirs(os.path.join(_OP_DIR, 'blog_assets', 'images'), exist_ok=True)
+    os.makedirs(os.path.join(_OP_DIR, 'blog_assets', 'gallery'), exist_ok=True)
+    os.makedirs(os.path.join(_OP_DIR, 'posts'), exist_ok=True)
+    os.makedirs(os.path.join(_OP_DIR, 'gallery'), exist_ok=True)
+    os.makedirs(os.path.join(_OP_DIR, 'templates'), exist_ok=True)
+    _posts_json = os.path.join(_OP_DIR, 'blog_assets', 'posts.json')
+    if not os.path.exists(_posts_json):
+        with open(_posts_json, 'w', encoding='utf-8') as f:
             json.dump([], f)
 
 
 def load_posts():
     init_folders()
     try:
-        with open('blog_assets/posts.json', 'r', encoding='utf-8') as f:
+        with open(os.path.join(_OP_DIR, 'blog_assets', 'posts.json'), 'r', encoding='utf-8') as f:
             posts = json.load(f)
         # Migrate old posts that don't have new fields
         for post in posts:
@@ -1157,7 +1158,7 @@ def load_posts():
 
 
 def save_posts(posts):
-    with open('blog_assets/posts.json', 'w', encoding='utf-8') as f:
+    with open(os.path.join(_OP_DIR, 'blog_assets', 'posts.json'), 'w', encoding='utf-8') as f:
         json.dump(posts, f, indent=4, ensure_ascii=False)
 
 
@@ -1180,8 +1181,8 @@ def format_content_html(content):
 
 
 def get_avatar_src(prefix=''):
-    """Return the avatar src — local file if it exists, else fallback."""
-    local = 'blog_assets/avatar.jpg'
+    """Return the avatar src â€” local file if it exists, else fallback."""
+    local = os.path.join(_OP_DIR, 'blog_assets', 'avatar.jpg')
     if os.path.exists(local):
         return f"{prefix}blog_assets/avatar.jpg"
     return "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
@@ -1197,7 +1198,7 @@ def build_carousel_html_blog(post):
     title = post['title']
 
     if len(paths) == 1:
-        # Single image — no nav buttons
+        # Single image â€” no nav buttons
         img_src = paths[0]
         return f"""
                 <a href="posts/{slug}.html" class="card-carousel" style="display:block;">
@@ -1265,7 +1266,7 @@ def save_image_file(image_data, image_name, subfolder='images'):
     timestamp = int(datetime.now().timestamp())
     safe_name = slugify(os.path.splitext(image_name)[0])[:20] or 'img'
     filename = f"{timestamp}_{safe_name}{ext}"
-    filepath = os.path.join('blog_assets', subfolder, filename)
+    filepath = os.path.join(_OP_DIR, 'blog_assets', subfolder, filename)
     with open(filepath, 'wb') as f:
         f.write(decoded_img)
     return f"blog_assets/{subfolder}/{filename}"
@@ -1277,7 +1278,7 @@ def regenerate_all(posts):
 
     avatar_src = get_avatar_src()
 
-    # ── 1. Generate blog.html ──────────────────────────────────────────────
+    # â”€â”€ 1. Generate blog.html â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     posts_feed_html = ""
     if not posts:
         posts_feed_html = '<div class="no-posts">No blog posts yet. Visit the local admin panel to add one!</div>'
@@ -1333,10 +1334,10 @@ def regenerate_all(posts):
         nav_toggle_script=NAV_TOGGLE_SCRIPT,
         posts_feed_html=posts_feed_html
     )
-    with open('blog.html', 'w', encoding='utf-8') as f:
+    with open(os.path.join(_OP_DIR, 'templates', 'blog.html'), 'w', encoding='utf-8') as f:
         f.write(blog_content)
 
-    # ── 2. Generate each post's HTML page ─────────────────────────────────
+    # â”€â”€ 2. Generate each post's HTML page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     for post in posts:
         post_date = format_date(post['updated_at'])
         post_content_html = format_content_html(post['content'])
@@ -1364,11 +1365,11 @@ def regenerate_all(posts):
             gallery_callout_html=gallery_callout_html
         )
 
-        filepath = os.path.join('posts', f"{post['slug']}.html")
+        filepath = os.path.join(_OP_DIR, 'posts', f"{post['slug']}.html")
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(post_content_str)
 
-    # ── 3. Generate gallery pages ─────────────────────────────────────────
+    # â”€â”€ 3. Generate gallery pages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     for post in posts:
         gallery_images = post.get('gallery_images', [])
         if not gallery_images:
@@ -1391,246 +1392,13 @@ def regenerate_all(posts):
             images_json=json.dumps(images_json_list)
         )
 
-        filepath = os.path.join('gallery', f"{post['slug']}.html")
+        filepath = os.path.join(_OP_DIR, 'gallery', f"{post['slug']}.html")
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(gallery_content)
 
 
 # ---------------------------------------------------------------------------
-# CUSTOM HTTP REQUEST HANDLER
+# END OF op/serve.py
+# The old BlogHTTPRequestHandler standalone server class has been removed.
+# Use FastAPI via op/app.py instead.
 # ---------------------------------------------------------------------------
-
-class BlogHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
-
-    def do_GET(self):
-        # API: get list of posts
-        if self.path == '/api/posts':
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
-            self.end_headers()
-            posts = load_posts()
-            self.wfile.write(json.dumps(posts).encode('utf-8'))
-            return
-
-        # Admin redirect
-        elif self.path in ('/admin', '/admin/'):
-            self.send_response(301)
-            self.send_header('Location', '/admin.html')
-            self.end_headers()
-            return
-
-        return super().do_GET()
-
-    def do_POST(self):
-        # ── Create new post ──────────────────────────────────────────────
-        if self.path == '/api/posts':
-            content_length = int(self.headers.get('Content-Length', 0))
-            post_data = self.rfile.read(content_length)
-            try:
-                data = json.loads(post_data.decode('utf-8'))
-                title = data.get('title', '').strip()
-                content = data.get('content', '').strip()
-
-                if not title or not content:
-                    self.send_error_response(400, "Title and content are required")
-                    return
-
-                # Process carousel images (array of {data, name})
-                image_paths = []
-                for img in data.get('images', []):
-                    if img.get('data'):
-                        try:
-                            path = save_image_file(img['data'], img.get('name', 'image.jpg'), 'images')
-                            image_paths.append(path)
-                        except Exception as e:
-                            print(f"Error saving carousel image: {e}")
-
-                # Process gallery images (array of {data, name})
-                gallery_image_paths = []
-                for img in data.get('gallery_images', []):
-                    if img.get('data'):
-                        try:
-                            path = save_image_file(img['data'], img.get('name', 'gallery.jpg'), 'gallery')
-                            gallery_image_paths.append(path)
-                        except Exception as e:
-                            print(f"Error saving gallery image: {e}")
-
-                posts = load_posts()
-                slug = generate_unique_slug(title, posts)
-                now = datetime.now().isoformat()
-
-                new_post = {
-                    "slug": slug,
-                    "title": title,
-                    "content": content,
-                    "image_paths": image_paths,
-                    "gallery_images": gallery_image_paths,
-                    "likes": 0,
-                    "created_at": now,
-                    "updated_at": now
-                }
-
-                posts.insert(0, new_post)
-                save_posts(posts)
-                regenerate_all(posts)
-                self.send_success_response({"status": "success", "slug": slug})
-
-            except Exception as e:
-                print(f"Error creating post: {e}")
-                self.send_error_response(500, str(e))
-            return
-
-        # ── Upload profile picture ───────────────────────────────────────
-        if self.path == '/api/profile-picture':
-            content_length = int(self.headers.get('Content-Length', 0))
-            post_data = self.rfile.read(content_length)
-            try:
-                data = json.loads(post_data.decode('utf-8'))
-                img_data = data.get('image', '')
-                if not img_data:
-                    self.send_error_response(400, "No image data provided")
-                    return
-
-                header, encoded = img_data.split(",", 1)
-                decoded_img = base64.b64decode(encoded)
-                with open('blog_assets/avatar.jpg', 'wb') as f:
-                    f.write(decoded_img)
-
-                # Regenerate all pages so avatar is updated
-                posts = load_posts()
-                regenerate_all(posts)
-                self.send_success_response({"status": "ok"})
-
-            except Exception as e:
-                print(f"Error saving avatar: {e}")
-                self.send_error_response(500, str(e))
-            return
-
-        self.send_error_response(404, "Not Found")
-
-    def do_PATCH(self):
-        # ── Update post (likes, etc.) ────────────────────────────────────
-        if self.path.startswith('/api/posts/'):
-            slug = self.path.split('/')[-1]
-            content_length = int(self.headers.get('Content-Length', 0))
-            post_data = self.rfile.read(content_length)
-            try:
-                data = json.loads(post_data.decode('utf-8'))
-                posts = load_posts()
-                updated = False
-                for post in posts:
-                    if post['slug'] == slug:
-                        if 'likes' in data:
-                            post['likes'] = int(data['likes'])
-                        post['updated_at'] = datetime.now().isoformat()
-                        updated = True
-                        break
-
-                if not updated:
-                    self.send_error_response(404, "Post not found")
-                    return
-
-                save_posts(posts)
-                regenerate_all(posts)
-                self.send_success_response({"status": "updated"})
-
-            except Exception as e:
-                print(f"Error updating post: {e}")
-                self.send_error_response(500, str(e))
-            return
-
-        self.send_error_response(404, "Not Found")
-
-    def do_DELETE(self):
-        # ── Delete post ──────────────────────────────────────────────────
-        if self.path.startswith('/api/posts/'):
-            slug = self.path.split('/')[-1]
-            posts = load_posts()
-
-            post_to_delete = next((p for p in posts if p['slug'] == slug), None)
-            if not post_to_delete:
-                self.send_error_response(404, "Post not found")
-                return
-
-            posts.remove(post_to_delete)
-            save_posts(posts)
-
-            # Delete carousel images
-            for img_path in post_to_delete.get('image_paths', []):
-                try:
-                    if os.path.exists(img_path):
-                        os.remove(img_path)
-                except Exception as e:
-                    print(f"Error removing image: {e}")
-
-            # Delete gallery images
-            for img_path in post_to_delete.get('gallery_images', []):
-                try:
-                    if os.path.exists(img_path):
-                        os.remove(img_path)
-                except Exception as e:
-                    print(f"Error removing gallery image: {e}")
-
-            # Delete static HTML files
-            for path in [
-                os.path.join('posts', f"{slug}.html"),
-                os.path.join('gallery', f"{slug}.html")
-            ]:
-                try:
-                    if os.path.exists(path):
-                        os.remove(path)
-                except Exception as e:
-                    print(f"Error removing html file: {e}")
-
-            regenerate_all(posts)
-            self.send_success_response({"status": "deleted", "slug": slug})
-            return
-
-        self.send_error_response(404, "Not Found")
-
-    def send_success_response(self, data):
-        self.send_response(200)
-        self.send_header('Content-Type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.end_headers()
-        self.wfile.write(json.dumps(data).encode('utf-8'))
-
-    def send_error_response(self, code, message):
-        self.send_response(code)
-        self.send_header('Content-Type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.end_headers()
-        self.wfile.write(json.dumps({"error": message}).encode('utf-8'))
-
-    def log_message(self, format, *args):
-        # Suppress noisy GET logs for static assets
-        if args and isinstance(args[0], str) and any(ext in args[0] for ext in ['.css', '.js', '.png', '.jpg', '.ico', '.woff']):
-            return
-        super().log_message(format, *args)
-
-
-# ---------------------------------------------------------------------------
-# MAIN RUNNER
-# ---------------------------------------------------------------------------
-
-if __name__ == "__main__":
-    init_folders()
-    current_posts = load_posts()
-    save_posts(current_posts)  # migrate schema
-    regenerate_all(current_posts)
-
-    IP_ADDRESS = get_ip_address()
-
-    with socketserver.TCPServer(("", PORT), BlogHTTPRequestHandler) as httpd:
-        print(f"\n-- Blog Server started!")
-        print(f"-- Local site:     http://localhost:{PORT}/index.html")
-        print(f"-- Local blog:     http://localhost:{PORT}/blog.html")
-        print(f"-- Local admin:    http://localhost:{PORT}/admin.html")
-        print(f"-- Network access: http://{IP_ADDRESS}:{PORT}")
-        print(f"\n-- Press Ctrl+C to stop the server.")
-        try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            print("\n-- Server stopped.")
-            httpd.server_close()
